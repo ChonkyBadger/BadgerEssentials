@@ -13,23 +13,24 @@ namespace BadgerEssentials
     {
         string jsonConfig = LoadResourceFile("BadgerEssentials", "config/config.json");
 
+        // Still to be used
         string ann = null;
         bool announcement = false;
         string announcementHeader; // Json Config
         int displayTime; // Json Config
         int timer = 0;
-        string[] anns = { };
 
         // Display Elements
-        string currentAOP = "Sandy Shores";
         bool peacetimeStatus = false;
         string peacetimeText = "~r~disabled";
-
         float peacetimeStatusX;
         float peacetimeStatusY;
+        float peaceTimeStatusScale;
 
+        string currentAOP = "Sandy Shores";
         float aopX;
         float aopY;
+        float aopScale;
 
         public BadgerEssentials()
 		{
