@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30711.63
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BadgerEssentialsClient", "BadgerEssentials\BadgerEssentialsClient.csproj", "{06EB2791-9021-4C58-86E1-D839EC3FE622}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BadgerEssentialsServer", "BadgerEssentialsServer\BadgerEssentialsServer.csproj", "{09E13F46-A355-4E2F-9365-1D55EA8BF094}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{06EB2791-9021-4C58-86E1-D839EC3FE622}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06EB2791-9021-4C58-86E1-D839EC3FE622}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06EB2791-9021-4C58-86E1-D839EC3FE622}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06EB2791-9021-4C58-86E1-D839EC3FE622}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09E13F46-A355-4E2F-9365-1D55EA8BF094}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09E13F46-A355-4E2F-9365-1D55EA8BF094}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09E13F46-A355-4E2F-9365-1D55EA8BF094}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09E13F46-A355-4E2F-9365-1D55EA8BF094}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {138343E4-6810-46A5-AF51-AC1DC7419278}
+	EndGlobalSection
+EndGlobal
