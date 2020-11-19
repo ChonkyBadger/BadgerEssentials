@@ -18,14 +18,19 @@ namespace BadgerEssentials
         bool announcement = false;
         string announcementHeader; // Json Config
         int displayTime; // Json Config
-        int timer = 0;
+
+        // Revive
+        bool deadCheck;
+        int revTimer;
+        bool revTimerActive = false;
+        int revDelay;
 
         // Display Elements
         bool peacetimeStatus = false;
         string peacetimeText = "~r~disabled";
         float peacetimeStatusX;
         float peacetimeStatusY;
-        float peaceTimeStatusScale;
+        float peacetimeStatusScale;
 
         string currentAOP = "Sandy Shores";
         float aopX;
@@ -43,15 +48,18 @@ namespace BadgerEssentials
             JObject o = JObject.Parse(jsonConfig);
             peacetimeStatusX = (float)o.SelectToken("displayElements.peacetime.x");
             peacetimeStatusY = (float)o.SelectToken("displayElements.peacetime.y");
+            peacetimeStatusScale = (float)o.SelectToken("displayElements.peacetime.scale");
             aopX = (float)o.SelectToken("displayElements.aop.x");
             aopY = (float)o.SelectToken("displayElements.aop.y");
+            aopScale = (float)o.SelectToken("displayElements.aop.scale");
+            revDelay = (int)o.SelectToken("commands.revive.cooldown");
 
             //
             // Event Listeners
             //
 
             // Revive Command Event from server
-            EventHandlers["BadgerEssentials:RevivePlayer"] += new Action<int>(RevivePlayer);
+            EventHandlers["BadgerEssentials:RevivePlayer"] += new Action<int, bool>(RevivePlayer);
 
             //
             // Commands
@@ -95,12 +103,12 @@ namespace BadgerEssentials
         private async Task onTick()
         {
             int ped = GetPlayerPed(-1);
-            // AOP Text
-            Draw2DText(aopX, aopY, "~y~AOP~s~: " + currentAOP, 0.43f, 1); // 0.165f, 0.96f
 
-            // PeaceTime
-            Draw2DText(peacetimeStatusX, peacetimeStatusY, "~y~Peacetime:~s~ " + peacetimeText, 0.43f, 1); // 0.165f, 0.94f
+            // Draw 2D Text
+            Draw2DText(aopX, aopY, "~y~AOP~s~: " + currentAOP, aopScale, 1); 
+            Draw2DText(peacetimeStatusX, peacetimeStatusY, "~y~Peacetime:~s~ " + peacetimeText, peacetimeStatusScale, 1); 
 
+            // Peacetime
             if (peacetimeStatus)
             {
                 DisablePlayerFiring(ped, true);
@@ -111,32 +119,57 @@ namespace BadgerEssentials
                     Screen.ShowNotification("~r~Peacetime is enabled. ~n~~s~You can not shoot.");
             }
 
-            // Dead / Revive / Respawn text
             if (IsEntityDead(ped))
             {
+                // Dead / Revive / Respawn text 
                 Draw2DText(0.5f, 0.3f, "~r~You are knocked out or dead...", 1.0f, 0);
                 Draw2DText(0.5f, 0.4f, "~y~You may use ~g~/revive ~y~if you were knocked out", 1.0f, 0);
                 Draw2DText(0.5f, 0.5f, "~y~If you are dead, you must use ~g~/respawn", 1.0f, 0);
+
+                // Dead Check
+                deadCheck = true;
+                if (deadCheck && !revTimerActive)
+                {
+                    revTimer = revDelay;
+                    revTimerActive = true;
+                }
+                if (revTimerActive && revTimer > 0)
+				{
+                    await Delay(1000);
+                    if (revTimer > 0)
+                        revTimer--;
+				}
+
+            }
+            else if (!IsEntityDead(ped) && deadCheck)
+            {
+                deadCheck = false;
+                revTimerActive = false; 
             }
         }
 
         //
         // Methods
         //
-        public void RevivePlayer(int eventParam1)
+
+        // Revive Player
+        public void RevivePlayer(int eventParam1, bool selfRevive)
 		{
             int ped = GetPlayerPed(-1);
             var pedpos = GetEntityCoords(ped, true);
-            if (IsEntityDead(ped))
+
+            if (IsEntityDead(ped) && !selfRevive)
                 NetworkResurrectLocalPlayer(pedpos.X, pedpos.Y, pedpos.Z, 0, true, false);
-            SetPlayerInvincible(ped, false);
+            else if (IsEntityDead(ped) && selfRevive && revTimer <= 0)
+                NetworkResurrectLocalPlayer(pedpos.X, pedpos.Y, pedpos.Z, 0, true, false);
+            else
+                Screen.ShowNotification("~y~[BadgerEssentials] " + "~r~You cannot revive for " + "~y~" + revTimer + " ~r~more seconds");
             ClearPedBloodDamage(ped);
-		}
+        }
 
         // Make an announcement on screen - NOT FINISHED YET
-        public void Announce([FromSource] string msg)
+        public void Announce(string msg)
 		{
-            timer = 0;
             announcement = true;
             ann = msg;
 

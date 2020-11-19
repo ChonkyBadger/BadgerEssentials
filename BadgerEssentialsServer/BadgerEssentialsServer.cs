@@ -10,9 +10,17 @@ namespace BadgerEssentialsServer
 {
     public class BadgerEssentialsServer : BaseScript
     {
+        int reviveDelay = 5; // Set to config later
+        int[] revTimer;
+        bool revTimerActive;
+
         public BadgerEssentialsServer()
-		{
+        {
             Tick += onTick;
+
+            //
+            // Event Listeners
+            //
 
             //
             // Commands
@@ -21,23 +29,26 @@ namespace BadgerEssentialsServer
             // Revive Command
             RegisterCommand("revive", new Action<int, List<object>, string>((source, args, raw) =>
             {
-                // Revive Self - Add timer later
-                if (args.Count == 0)
-                {
-                    TriggerClientEvent("BadgerEssentials:RevivePlayer", source);
-                }
-                // Revive other person - Add timer later
+                // Revive Self 
+                if (args.Count == 0 || int.Parse(args[0].ToString()) == source)
+                    TriggerClientEvent("BadgerEssentials:RevivePlayer", source, true);
+                // Revive other person 
                 else if (int.Parse(args[0].ToString()) != source)
                 {
-                    TriggerClientEvent("BadgerEssentials:RevivePlayer", int.Parse(args[0].ToString()));
-				}
-			}), false);
+                    string playerName = GetPlayerName(args[0].ToString());
+                    if (!string.IsNullOrEmpty(playerName))
+                        TriggerClientEvent("BadgerEssentials:RevivePlayer", int.Parse(args[0].ToString()), false);
+                }
+            }), false);
         }
 
         // Runs every tick
         private async Task onTick()
         {
-
         }
+
+        //
+        // Methods
+        //
     }
 }
