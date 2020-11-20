@@ -21,7 +21,7 @@ In the displayElements section of the config file, you are able to change proper
 For example, the x and y position of the aop.
 
 ### "commands"
-Here, you can edit properties of commands, such as, revive cooldown. 
+Here, you can edit properties of commands, such as, revive cooldown.  
 **Cooldown values:** A number of seconds, must be an integer (whole number).
 
 ## Permissions
