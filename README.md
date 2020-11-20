@@ -20,6 +20,14 @@ or like the name of the script name, essentials.
 In the displayElements section of the config file, you are able to change properties of text which is displayed on screen.  
 For example, the x and y position of the aop.
 
+### "commands"
+Here, you can edit properties of commands.  
+**Cooldown values:** A number of seconds, must be an integer (whole number).
+
+## Permissions
+### Coming soon...
+
 ## Links
-- [discord](https://discord.gg/TFCQE8d)
+- [Postal Map used by this script](https://github.com/ocrp/postal_map/)
+- [My Discord Server](https://discord.gg/TFCQE8d)
 
