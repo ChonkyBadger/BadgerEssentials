@@ -5,15 +5,17 @@ This script basically add lots of useful stuff, such as /revive and /respawn,
 or like the name of the script name, essentials.
 
 ## Commands
-`/die` Kills the player who executes this command.
+`/Die` Kills the player who executes this command.
 
-`/revive [Target Player ID]` Revives the player who executes this command or another player, specified by their ID.
+`/Revive [Target Player ID]` Revives the player who executes this command or another player, specified by their ID.
 
-`/respawn` Respawns the player who executes this command.
+`/Respawn` Respawns the player who executes this command.
 
-`/peacetime` Toggles peacetime on and off.
+`/Peacetime` Toggles peacetime on and off.
 
-`/setAOP <aop>` Sets the aop to whatever arguments are given.
+`/SetAOP <aop>` Sets the aop to whatever arguments are given.
+
+`/Postal <postal>` Sets a waypoint to the specified postal.
 
 ## Configuration
 ### "displayElements"
