@@ -1,17 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Newtonsoft;
 using Newtonsoft.Json.Linq;
 using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
 using CitizenFX.Core.UI;
+using System.Linq;
 
 namespace BadgerEssentials
 {
     public class BadgerEssentials : BaseScript
     {
         string jsonConfig = LoadResourceFile("BadgerEssentials", "config/config.json");
+        string jsonPostals = LoadResourceFile("BadgerEssentials", "config/postals.json");
+
+        JArray a;
 
         // Still to be used
         string ann = null;
@@ -37,29 +40,53 @@ namespace BadgerEssentials
         float aopY;
         float aopScale;
 
+        float postalX;
+        float postalY;
+        float postalScale;
+
+        // Postal Stuff
+        float nearestPostalDistance;
+        int nearestPostalCode;
+        List<int> postalCodeValues = new List<int>();
+
         public BadgerEssentials()
-		{
-            Tick += onTick;
+        {
+            Tick += OnTick;
+            Tick += OnTickB;
+            Tick += OnTickPostals;
 
             //
             // Parse json config
             //
 
+            // Json Config Objects
             JObject o = JObject.Parse(jsonConfig);
+
             peacetimeStatusX = (float)o.SelectToken("displayElements.peacetime.x");
             peacetimeStatusY = (float)o.SelectToken("displayElements.peacetime.y");
             peacetimeStatusScale = (float)o.SelectToken("displayElements.peacetime.scale");
             aopX = (float)o.SelectToken("displayElements.aop.x");
             aopY = (float)o.SelectToken("displayElements.aop.y");
             aopScale = (float)o.SelectToken("displayElements.aop.scale");
+            postalX = (float)o.SelectToken("displayElements.postal.x");
+            postalY = (float)o.SelectToken("displayElements.postal.y");
+            postalScale = (float)o.SelectToken("displayElements.postal.scale");
             revDelay = (int)o.SelectToken("commands.revive.cooldown");
+
+            // Json Postals Array
+            a = Newtonsoft.Json.JsonConvert.DeserializeObject<JArray>(jsonPostals);
+
+            // Put postal code numbers into a list
+            foreach (JObject item in a)
+                postalCodeValues.Add((int)item.GetValue("code"));
+
 
             //
             // Event Listeners
             //
 
-            // Revive Command Event from server
-            EventHandlers["BadgerEssentials:RevivePlayer"] += new Action<int, bool>(RevivePlayer);
+            EventHandlers["onClientMapStart"] += new Action<int, bool>(RevivePlayer);
+            EventHandlers["BadgerEssentials:RevivePlayer"] += new Action<string>(OnClientMapStart);
 
             //
             // Commands
@@ -76,6 +103,20 @@ namespace BadgerEssentials
                 }
             }), false);
 
+            // Respawn Command
+            RegisterCommand("respawn", new Action<int, List<object>, string>((source, args, raw) =>
+            {
+                int ped = GetPlayerPed(-1);
+                Vector3 pedpos = GetEntityCoords(ped, true);
+
+                if (IsEntityDead(ped))
+				{
+                    NetworkResurrectLocalPlayer(pedpos.X, pedpos.Y, pedpos.Z, 0, true, false);
+                    ClearPedBloodDamage(ped);
+                    SetEntityCoords(ped, 1828.43f, 3693.01f, 34.22f, false, false, false, false);
+                }     
+            }), false);
+
             // Set AOP command
             RegisterCommand("setAOP", new Action<int, List<object>, string>((source, args, raw) =>
             {
@@ -86,27 +127,36 @@ namespace BadgerEssentials
             // Toggle Peacetime
             RegisterCommand("peacetime", new Action<int, List<object>, string>((source, args, raw) =>
             {
-				if (peacetimeStatus == false)
-				{
-					peacetimeStatus = true;
-					peacetimeText = "~g~enabled";
-				}
-				else 
-				{
+                if (peacetimeStatus == false)
+                {
+                    peacetimeStatus = true;
+                    peacetimeText = "~g~enabled";
+                }
+                else
+                {
                     peacetimeStatus = false;
                     peacetimeText = "~r~disabled";
                 }
             }), false);
+
+            // Nearest Postal Command
+            RegisterCommand("postalB", new Action<int, List<object>, string>((source, args, raw) =>
+            {
+
+            }), false);
         }
 
-        // Method runs every tick
-        private async Task onTick()
+        //
+        // onTick methods;
+        //
+        private async Task OnTick()
         {
             int ped = GetPlayerPed(-1);
 
             // Draw 2D Text
-            Draw2DText(aopX, aopY, "~y~AOP~s~: " + currentAOP, aopScale, 1); 
-            Draw2DText(peacetimeStatusX, peacetimeStatusY, "~y~Peacetime:~s~ " + peacetimeText, peacetimeStatusScale, 1); 
+            Draw2DText(aopX, aopY, "~y~AOP~s~: " + currentAOP, aopScale, 1);
+            Draw2DText(peacetimeStatusX, peacetimeStatusY, "~y~Peacetime:~s~ " + peacetimeText, peacetimeStatusScale, 1);
+            Draw2DText(postalX, postalY, "~y~Nearest Postal:~s~ " + nearestPostalCode + " (" + (int)nearestPostalDistance + "m)" , postalScale, 1);
 
             // Peacetime
             if (peacetimeStatus)
@@ -126,6 +176,16 @@ namespace BadgerEssentials
                 Draw2DText(0.5f, 0.4f, "~y~You may use ~g~/revive ~y~if you were knocked out", 1.0f, 0);
                 Draw2DText(0.5f, 0.5f, "~y~If you are dead, you must use ~g~/respawn", 1.0f, 0);
 
+            }
+        }
+
+        // OnTickB: Revive Timer
+        private async Task OnTickB()
+        {
+            int ped = GetPlayerPed(-1);
+
+            if (IsEntityDead(ped))
+            {
                 // Dead Check
                 deadCheck = true;
                 if (deadCheck && !revTimerActive)
@@ -134,19 +194,35 @@ namespace BadgerEssentials
                     revTimerActive = true;
                 }
                 if (revTimerActive && revTimer > 0)
-				{
+                {
                     await Delay(1000);
                     if (revTimer > 0)
                         revTimer--;
-				}
+                }
 
             }
             else if (!IsEntityDead(ped) && deadCheck)
             {
                 deadCheck = false;
-                revTimerActive = false; 
+                revTimerActive = false;
             }
         }
+
+        // Postals
+        private async Task OnTickPostals()
+        {
+            await Delay(250);
+
+            int ped = GetPlayerPed(-1);
+            Vector3 pos = GetEntityCoords(ped, true);
+
+            List<float> distanceList = new List<float>();
+            foreach (JObject item in a)
+                distanceList.Add(GetDistanceBetweenCoords(pos.X, pos.Y, pos.Z, (float)item.GetValue("x"), (float)item.GetValue("y"), 0, false));
+            nearestPostalDistance = distanceList.Min();
+            nearestPostalCode = postalCodeValues[Array.IndexOf(distanceList.ToArray(), distanceList.Min())];
+        }
+
 
         //
         // Methods
@@ -154,22 +230,29 @@ namespace BadgerEssentials
 
         // Revive Player
         public void RevivePlayer(int eventParam1, bool selfRevive)
-		{
+        {
             int ped = GetPlayerPed(-1);
-            var pedpos = GetEntityCoords(ped, true);
-
-            if (IsEntityDead(ped) && !selfRevive)
-                NetworkResurrectLocalPlayer(pedpos.X, pedpos.Y, pedpos.Z, 0, true, false);
-            else if (IsEntityDead(ped) && selfRevive && revTimer <= 0)
-                NetworkResurrectLocalPlayer(pedpos.X, pedpos.Y, pedpos.Z, 0, true, false);
-            else
-                Screen.ShowNotification("~y~[BadgerEssentials] " + "~r~You cannot revive for " + "~y~" + revTimer + " ~r~more seconds");
-            ClearPedBloodDamage(ped);
+            Vector3 pedpos = GetEntityCoords(ped, true);
+            if (IsEntityDead(ped))
+            {
+                if (!selfRevive)
+                {
+                    NetworkResurrectLocalPlayer(pedpos.X, pedpos.Y, pedpos.Z, 0, true, false);
+                    ClearPedBloodDamage(ped);
+                }
+                else if (selfRevive && revTimer <= 0)
+                {
+                    NetworkResurrectLocalPlayer(pedpos.X, pedpos.Y, pedpos.Z, 0, true, false);
+                    ClearPedBloodDamage(ped);
+                }
+                else
+                    Screen.ShowNotification("~y~[BadgerEssentials] " + "~r~You cannot revive for " + "~y~" + revTimer + " ~r~more seconds");
+            }
         }
 
         // Make an announcement on screen - NOT FINISHED YET
         public void Announce(string msg)
-		{
+        {
             announcement = true;
             ann = msg;
 
@@ -177,8 +260,8 @@ namespace BadgerEssentials
             if (ann.Length > 70)
             {
 
-			}
-		}
+            }
+        }
 
         // Draw 2D Text on screen
         public void Draw2DText([FromSource] float x, float y, string text, float scale, int allignment)
@@ -190,13 +273,18 @@ namespace BadgerEssentials
             SetTextOutline();
             if (allignment == 0)
                 SetTextJustification(0); // Center
-            else if (allignment == 1) 
+            else if (allignment == 1)
                 SetTextJustification(1); // Left
             else if (allignment == 2)
                 SetTextJustification(2); // Right
             SetTextEntry("STRING");
             AddTextComponentString(text);
             DrawText(x, y);
-        }  
+        }
+
+        public void OnClientMapStart(string i)
+		{
+            
+        }
     }
 }
