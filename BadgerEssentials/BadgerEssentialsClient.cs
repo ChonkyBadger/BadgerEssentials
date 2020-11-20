@@ -47,7 +47,10 @@ namespace BadgerEssentials
         // Postal Stuff
         float nearestPostalDistance;
         int nearestPostalCode;
+        int postalArrayIndex;
         List<int> postalCodeValues = new List<int>();
+        List<int> postalXValues = new List<int>();
+        List<int> postalYValues = new List<int>();
 
         public BadgerEssentials()
         {
@@ -78,15 +81,18 @@ namespace BadgerEssentials
 
             // Put postal code numbers into a list
             foreach (JObject item in a)
+			{
                 postalCodeValues.Add((int)item.GetValue("code"));
-
+                postalXValues.Add((int)item.GetValue("x"));
+                postalYValues.Add((int)item.GetValue("y"));
+            }
 
             //
             // Event Listeners
             //
 
-            EventHandlers["onClientMapStart"] += new Action<int, bool>(RevivePlayer);
-            EventHandlers["BadgerEssentials:RevivePlayer"] += new Action<string>(OnClientMapStart);
+            EventHandlers["onClientMapStart"] += new Action(OnClientMapStart);
+            EventHandlers["BadgerEssentials:RevivePlayer"] += new Action<int, bool>(RevivePlayer);
 
             //
             // Commands
@@ -140,9 +146,14 @@ namespace BadgerEssentials
             }), false);
 
             // Nearest Postal Command
-            RegisterCommand("postalB", new Action<int, List<object>, string>((source, args, raw) =>
+            RegisterCommand("postal", new Action<int, List<object>, string>((source, args, raw) =>
             {
+                int arrayIndex = Array.IndexOf(postalCodeValues.ToArray(), int.Parse(args[0].ToString()));
+                float postalXCoord = postalXValues.ElementAt(arrayIndex);
+                float postalYCoord = postalYValues.ElementAt(arrayIndex);
+                SetNewWaypoint(postalXCoord, postalYCoord);
 
+                Screen.ShowNotification("~y~Waypoint set to postal~s~ " + args[0]);
             }), false);
         }
 
@@ -220,13 +231,24 @@ namespace BadgerEssentials
             foreach (JObject item in a)
                 distanceList.Add(GetDistanceBetweenCoords(pos.X, pos.Y, pos.Z, (float)item.GetValue("x"), (float)item.GetValue("y"), 0, false));
             nearestPostalDistance = distanceList.Min();
-            nearestPostalCode = postalCodeValues[Array.IndexOf(distanceList.ToArray(), distanceList.Min())];
+            postalArrayIndex = Array.IndexOf(distanceList.ToArray(), distanceList.Min());
+            nearestPostalCode = postalCodeValues[postalArrayIndex];
         }
 
 
         //
         // Methods
         //
+
+        // Map Start
+        public void OnClientMapStart()
+		{
+            Exports["spawnmanager"].spawnPlayer();
+            Debug.WriteLine("Spawn player");
+            Wait(2500);
+            Exports["spawnmanager"].setAutoSpawn(false);
+            Debug.WriteLine("Disabled Auto Spawn");
+        }
 
         // Revive Player
         public void RevivePlayer(int eventParam1, bool selfRevive)
@@ -280,11 +302,6 @@ namespace BadgerEssentials
             SetTextEntry("STRING");
             AddTextComponentString(text);
             DrawText(x, y);
-        }
-
-        public void OnClientMapStart(string i)
-		{
-            
         }
     }
 }
