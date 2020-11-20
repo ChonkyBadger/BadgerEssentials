@@ -29,5 +29,5 @@ Here, you can edit properties of commands, such as, revive cooldown.
 
 ## Links
 - [Postal Map used by this script](https://github.com/ocrp/postal_map/)
-- [discord](https://discord.gg/TFCQE8d)
+- [My Discord Server](https://discord.gg/TFCQE8d)
 
