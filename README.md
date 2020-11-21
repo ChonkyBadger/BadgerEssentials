@@ -17,6 +17,8 @@ or like the name of the script name, essentials.
 
 `/Postal <postal>` Sets a waypoint to the specified postal.
 
+`/Announce <Announcement Message>` Displays a message to all players on the server. Requires permission node BadgerEssentials.Command.Announce  
+
 ## Configuration
 ### "displayElements"
 In the displayElements section of the config file, you are able to change properties of text which is displayed on screen.  
@@ -27,7 +29,7 @@ Here, you can edit properties of commands.
 **Cooldown values:** A number of seconds, must be an integer (whole number).
 
 ## Permissions
-### Coming soon...
+`BadgerEssentials.Command.Announce` Gives access to the /Announce command.
 
 ## Links
 - [Postal Map used by this script](https://github.com/ocrp/postal_map/)
