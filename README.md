@@ -11,9 +11,14 @@ or like the name of the script name, essentials.
 
 `/Respawn` Respawns the player who executes this command.
 
-`/Peacetime` Toggles peacetime on and off.
+`/Pt` Toggles peacetime on and off.
 
-`/SetAOP <aop>` Sets the aop to whatever arguments are given.
+`/pc <duration>` Turns on priority cooldown for a set time in minutesel.
+`/pc-inprogress` Turns on "Priority in Progress".
+`/pc-onhold` Turns on "Priorities on hold".
+`/pc-reset` Resets priority cooldown status to none.
+
+`/SetAOP <aop>` Sets the aop to whatever arguments are given. Requires permission node BadgerEssentials.Command.SetAOP
 
 `/Postal <postal>` Sets a waypoint to the specified postal.
 
@@ -31,6 +36,10 @@ Here, you can edit properties of commands.
 
 ## Permissions
 `BadgerEssentials.Command.Announce` Gives access to the /Announce command.
+`BadgerEssentials.Bypass.ReviveTimer` Bypasses the timer before you can revive.
+`BadgerEssentials.Command.PriorityCooldown` Gives access to priority cooldown commands.
+`BadgerEssentials.Command.Peacetime` Gives access to /pt
+`BadgerEssentials.Command.SetAOP` Gives access to /SetAOP.
 
 ## Links
 - [Postal Map used by this script](https://github.com/ocrp/postal_map/)
