@@ -17,7 +17,6 @@ namespace BadgerEssentials
         JArray a;
 
         // Still to be used
-        string ann = null;
         bool announcement = false;
         string announcementHeader; // Json Config
         int displayTime; // Json Config
@@ -28,18 +27,25 @@ namespace BadgerEssentials
         bool revTimerActive = false;
         int revDelay;
 
+        // Announcement
+        int annTimer;
+        bool annTimerActive;
+        int announcementDuration;
+        string annMsg;
+
         // Display Elements
+        bool toggleHud = true;
+
         bool peacetimeStatus = false;
         string peacetimeText = "~r~disabled";
         float peacetimeStatusX;
         float peacetimeStatusY;
         float peacetimeStatusScale;
 
-        string currentAOP = "Sandy Shores";
+        string currentAOP;
         float aopX;
         float aopY;
         float aopScale;
-
         float postalX;
         float postalY;
         float postalScale;
@@ -54,8 +60,9 @@ namespace BadgerEssentials
 
         public BadgerEssentials()
         {
-            Tick += OnTick;
-            Tick += OnTickB;
+            Tick += OnTickDraw2DText;
+            Tick += OnTickRevTimer;
+            Tick += OnTickAnnTimer;
             Tick += OnTickPostals;
 
             //
@@ -68,6 +75,7 @@ namespace BadgerEssentials
             peacetimeStatusX = (float)o.SelectToken("displayElements.peacetime.x");
             peacetimeStatusY = (float)o.SelectToken("displayElements.peacetime.y");
             peacetimeStatusScale = (float)o.SelectToken("displayElements.peacetime.scale");
+            currentAOP = (string)o.SelectToken("displayElements.aop.defaultAOP");
             aopX = (float)o.SelectToken("displayElements.aop.x");
             aopY = (float)o.SelectToken("displayElements.aop.y");
             aopScale = (float)o.SelectToken("displayElements.aop.scale");
@@ -75,6 +83,7 @@ namespace BadgerEssentials
             postalY = (float)o.SelectToken("displayElements.postal.y");
             postalScale = (float)o.SelectToken("displayElements.postal.scale");
             revDelay = (int)o.SelectToken("commands.revive.cooldown");
+            announcementDuration = (int)o.SelectToken("commands.announce.duration");
 
             // Json Postals Array
             a = Newtonsoft.Json.JsonConvert.DeserializeObject<JArray>(jsonPostals);
@@ -93,6 +102,7 @@ namespace BadgerEssentials
 
             EventHandlers["onClientMapStart"] += new Action(OnClientMapStart);
             EventHandlers["BadgerEssentials:RevivePlayer"] += new Action<int, bool>(RevivePlayer);
+            EventHandlers["BadgerEssentials:Announce"] += new Action<int, string>(Announce);
 
             //
             // Commands
@@ -155,19 +165,38 @@ namespace BadgerEssentials
 
                 Screen.ShowNotification("~y~Waypoint set to postal~s~ " + args[0]);
             }), false);
+
+            // Toggle-Hud
+            RegisterCommand("toggle-hud", new Action<int, List<object>, string>((source, args, raw) =>
+            {
+                if (toggleHud)
+                    toggleHud = false;
+                else toggleHud = true;
+            }), false);
         }
 
         //
         // onTick methods;
         //
-        private async Task OnTick()
+
+        private async Task OnTickDraw2DText()
         {
             int ped = GetPlayerPed(-1);
 
+            // Announcement Message
+            if (annTimerActive)
+            {
+                Draw2DText(0.5f, 0.2f, "~r~Announcement!", 1.0f, 0);
+                Draw2DText(0.5f, 0.25f, annMsg, 1.0f, 0);
+            }
+
             // Draw 2D Text
-            Draw2DText(aopX, aopY, "~y~AOP~s~: " + currentAOP, aopScale, 1);
-            Draw2DText(peacetimeStatusX, peacetimeStatusY, "~y~Peacetime:~s~ " + peacetimeText, peacetimeStatusScale, 1);
-            Draw2DText(postalX, postalY, "~y~Nearest Postal:~s~ " + nearestPostalCode + " (" + (int)nearestPostalDistance + "m)" , postalScale, 1);
+            if (toggleHud)
+			{
+                Draw2DText(aopX, aopY, "~y~AOP~s~: " + currentAOP, aopScale, 1);
+                Draw2DText(peacetimeStatusX, peacetimeStatusY, "~y~Peacetime:~s~ " + peacetimeText, peacetimeStatusScale, 1);
+                Draw2DText(postalX, postalY, "~y~Nearest Postal:~s~ " + nearestPostalCode + " (" + (int)nearestPostalDistance + "m)", postalScale, 1);
+            }
 
             // Peacetime
             if (peacetimeStatus)
@@ -180,7 +209,7 @@ namespace BadgerEssentials
                     Screen.ShowNotification("~r~Peacetime is enabled. ~n~~s~You can not shoot.");
             }
 
-            if (IsEntityDead(ped))
+            if (IsEntityDead(ped) && toggleHud)
             {
                 // Dead / Revive / Respawn text 
                 Draw2DText(0.5f, 0.3f, "~r~You are knocked out or dead...", 1.0f, 0);
@@ -190,8 +219,8 @@ namespace BadgerEssentials
             }
         }
 
-        // OnTickB: Revive Timer
-        private async Task OnTickB()
+        // OnTick Revive Timer
+        private async Task OnTickRevTimer()
         {
             int ped = GetPlayerPed(-1);
 
@@ -219,7 +248,21 @@ namespace BadgerEssentials
             }
         }
 
-        // Postals
+        // OnTick Announcement Timer
+        private async Task OnTickAnnTimer()
+        {
+            if (!annTimerActive && annTimer > 0)
+                annTimerActive = true;
+            else if (annTimerActive && annTimer > 0)
+			{
+                await Delay(1000);
+                annTimer--;
+            }
+            else
+                annTimerActive = false;
+        }
+
+        // OnTick Postals
         private async Task OnTickPostals()
         {
             await Delay(250);
@@ -272,21 +315,36 @@ namespace BadgerEssentials
             }
         }
 
-        // Make an announcement on screen - NOT FINISHED YET
-        public void Announce(string msg)
+        // Make an announcement on screen
+        public void Announce(int source, string announcementMsg)
         {
-            announcement = true;
-            ann = msg;
-
-            // Split up message if more than 70
-            if (ann.Length > 70)
+            annMsg = String.Empty;
+            // Split up message if more than 70 characters long
+            if (announcementMsg.Length > 70)
             {
+                string[] words = announcementMsg.Split();
+                int index = -1;
+                int lineLength = 0;
+                foreach (string i in words)
+                {
+                    index++;
+                    string word = words[index];
+                    lineLength += word.Length;
 
+                    if (lineLength > 70)
+                    {
+                        annMsg += "\n";
+                        lineLength = 0;
+                    }
+                    annMsg += word + " ";
+                }
             }
+            else annMsg = announcementMsg;
+            annTimer = announcementDuration;
         }
 
         // Draw 2D Text on screen
-        public void Draw2DText([FromSource] float x, float y, string text, float scale, int allignment)
+        public void Draw2DText(float x, float y, string text, float scale, int allignment)
         {
             SetTextFont(4);
             SetTextScale(scale, scale);

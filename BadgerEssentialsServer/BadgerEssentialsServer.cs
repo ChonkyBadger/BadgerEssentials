@@ -10,10 +10,6 @@ namespace BadgerEssentialsServer
 {
     public class BadgerEssentialsServer : BaseScript
     {
-        int reviveDelay = 5; // Set to config later
-        int[] revTimer;
-        bool revTimerActive;
-
         public BadgerEssentialsServer()
         {
             Tick += onTick;
@@ -39,6 +35,16 @@ namespace BadgerEssentialsServer
                     if (!string.IsNullOrEmpty(playerName))
                         TriggerClientEvent("BadgerEssentials:RevivePlayer", int.Parse(args[0].ToString()), false);
                 }
+            }), false);
+
+            // Announcement Command
+            RegisterCommand("announce", new Action<int, List<object>, string>((source, args, raw) =>
+            {
+                if (IsPlayerAceAllowed(source.ToString(), "BadgerEssentials.Command.Announce") && args.Count > 0)
+				{
+                    string announcementMsg = String.Join(" ", args);
+                    TriggerClientEvent("BadgerEssentials:Announce", -1, announcementMsg);
+				}
             }), false);
         }
 
