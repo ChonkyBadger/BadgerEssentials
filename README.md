@@ -35,11 +35,11 @@ Here, you can edit properties of commands.
 **Cooldown values:** A number of seconds, must be an integer (whole number).
 
 ## Permissions
-`BadgerEssentials.Command.Announce` Gives access to the /Announce command.
-`BadgerEssentials.Bypass.ReviveTimer` Bypasses the timer before you can revive.
-`BadgerEssentials.Command.PriorityCooldown` Gives access to priority cooldown commands.
-`BadgerEssentials.Command.Peacetime` Gives access to /pt
-`BadgerEssentials.Command.SetAOP` Gives access to /SetAOP.
+`BadgerEssentials.Command.Announce` Gives access to the /Announce command.  
+`BadgerEssentials.Bypass.ReviveTimer` Bypasses the timer before you can revive.  
+`BadgerEssentials.Command.PriorityCooldown` Gives access to priority cooldown commands.  
+`BadgerEssentials.Command.Peacetime` Gives access to /pt  
+`BadgerEssentials.Command.SetAOP` Gives access to /SetAOP.  
 
 ## Links
 - [Postal Map used by this script](https://github.com/ocrp/postal_map/)
