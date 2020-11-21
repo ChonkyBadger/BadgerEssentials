@@ -23,7 +23,7 @@ or like the name of the script name, essentials.
 ### "displayElements"
 In the displayElements section of the config file, you are able to change properties of text which is displayed on screen.  
 For example, the x and y position of the aop.  
-**Text Allignment:** 0 = Center | 1 = Left | 2 = Right.
+**textAllignment:** 0 = Center | 1 = Left | 2 = Right.
 
 ### "commands"
 Here, you can edit properties of commands.  
