@@ -14,7 +14,10 @@ namespace BadgerEssentials
 		string jsonConfig = LoadResourceFile("BadgerEssentials", "config/config.json");
 		string jsonPostals = LoadResourceFile("BadgerEssentials", "config/postals.json");
 
-		JArray a;        
+		JArray a;
+
+        string colour1; // Yellow stuff by default
+        string colour2; // White stuff by default
 
         // Revive
         bool deadCheck;
@@ -97,6 +100,10 @@ namespace BadgerEssentials
             // Json Config Objects
             JObject o = JObject.Parse(jsonConfig);
 
+            // Colours
+            colour1 = (string)o.SelectToken("displayElements.colours.colour1");
+            colour2 = (string)o.SelectToken("displayElements.colours.colour2");
+
             // Street Label
             streetLabelPos.X = (float)o.SelectToken("displayElements.streetLabel.x");
             streetLabelPos.Y = (float)o.SelectToken("displayElements.streetLabel.y");
@@ -171,7 +178,7 @@ namespace BadgerEssentials
                 if (!IsEntityDead(ped))
                 {
                     Game.PlayerPed.Kill();
-                    Screen.ShowNotification("~y~Successfuly Suicided");
+                    Screen.ShowNotification(colour1 + "Successfuly Suicided");
                 }
             }), false);
 
@@ -197,7 +204,7 @@ namespace BadgerEssentials
                 float postalYCoord = postalYValues.ElementAt(arrayIndex);
                 SetNewWaypoint(postalXCoord, postalYCoord);
 
-                Screen.ShowNotification("~y~Waypoint set to postal~s~ " + args[0]);
+                Screen.ShowNotification(colour1 + "Waypoint set to postal~s~ " + args[0]);
             }), false);
 
             // Toggle-Hud
@@ -221,24 +228,24 @@ namespace BadgerEssentials
                 // Draw 2D Text
                 if (streetLabelEnabled)
 				{
-                    Draw2DText(streetLabelPos.X, streetLabelPos.Y, "~y~" + streetLabelHeading + " ~s~|~y~ " + streetLabelStreetName, streetLabelScale, streetLabelAllignment);
-                    Draw2DText(streetLabelPos.X, streetLabelPos.Y + 0.030f, streetLabelZone, streetLabelScale / 1.1f, streetLabelAllignment);
+                    Draw2DText(streetLabelPos.X, streetLabelPos.Y, colour1 + streetLabelHeading + colour2 + " | " + colour1 + streetLabelStreetName, streetLabelScale, streetLabelAllignment);
+                    Draw2DText(streetLabelPos.X, streetLabelPos.Y + 0.030f, colour2 + streetLabelZone, streetLabelScale / 1.1f, streetLabelAllignment);
                 }
                 if (postalEnabled)
-                    Draw2DText(postalPos.X, postalPos.Y, "~y~Nearest Postal:~s~ " + nearestPostalCode + " (" + (int)nearestPostalDistance + "m)", postalScale, postalAllignment);
+                    Draw2DText(postalPos.X, postalPos.Y, colour1 + "Nearest Postal: " + colour2 + nearestPostalCode + " (" + (int)nearestPostalDistance + "m)", postalScale, postalAllignment);
                 if (peacetimeEnabled)
-                    Draw2DText(peacetimePos.X, peacetimePos.Y, "~y~Peacetime:~s~ " + peacetimeText, peacetimeStatusScale, peacetimeAllignment);
+                    Draw2DText(peacetimePos.X, peacetimePos.Y, colour1 + "Peacetime:~s~ " + peacetimeText, peacetimeStatusScale, peacetimeAllignment);
                 if (priorityCooldownEnabled)
-                    Draw2DText(priorityCooldownPos.X, priorityCooldownPos.Y, "~y~Priority Cooldown:~s~ " + priorityCooldownStatus, priorityCooldownScale, priorityCooldownAllignment);
+                    Draw2DText(priorityCooldownPos.X, priorityCooldownPos.Y, colour1 + "Priority Cooldown: " + colour2 + priorityCooldownStatus, priorityCooldownScale, priorityCooldownAllignment);
                 if (aopEnabled)
-                    Draw2DText(aopPos.X, aopPos.Y, "~y~AOP:~s~ " + currentAOP, aopScale, aopAllignment);
+                    Draw2DText(aopPos.X, aopPos.Y, colour1 + "AOP: " + colour2 + currentAOP, aopScale, aopAllignment);
 
                 if (deadCheck)
                 {
                     // Dead / Revive / Respawn text 
                     Draw2DText(0.5f, 0.3f, "~r~You are knocked out or dead...", 1.0f, 0);
-                    Draw2DText(0.5f, 0.4f, "~y~You may use ~g~/revive ~y~if you were knocked out", 1.0f, 0);
-                    Draw2DText(0.5f, 0.5f, "~y~If you are dead, you must use ~g~/respawn", 1.0f, 0);
+                    Draw2DText(0.5f, 0.4f, colour1 + "You may use ~g~/revive " + colour1 + "if you were knocked out", 1.0f, 0);
+                    Draw2DText(0.5f, 0.5f, colour1 + "If you are dead, you must use ~g~/respawn", 1.0f, 0);
                 }
             }                
             // Announcement Message
@@ -347,7 +354,7 @@ namespace BadgerEssentials
                 }
                 streetLabelStreetName = GetStreetNameFromHashKey(streetNameCrossRoad(0));
                 if (GetStreetNameFromHashKey(streetNameCrossRoad(1)) != string.Empty)
-                    streetLabelStreetName += " ~s~/~y~ " + GetStreetNameFromHashKey(streetNameCrossRoad(1));
+                    streetLabelStreetName += colour2 + " / " + colour1 + GetStreetNameFromHashKey(streetNameCrossRoad(1));
                 streetLabelZone = GetLabelText(GetNameOfZone(pos.X, pos.Y, pos.Z));
             }
         }
@@ -405,7 +412,7 @@ namespace BadgerEssentials
                         ClearPedBloodDamage(ped);
                     }
                     else
-                        Screen.ShowNotification("~y~[BadgerEssentials] " + "~r~You cannot revive for " + "~y~" + revTimer + " ~r~more seconds");
+                        Screen.ShowNotification(colour1 + "[BadgerEssentials] " + "~r~You cannot revive for " + colour1 + revTimer + " ~r~more seconds");
                 }
             }
         }
