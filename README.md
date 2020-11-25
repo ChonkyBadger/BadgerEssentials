@@ -13,10 +13,10 @@ or like the name of the script name, essentials.
 
 `/Pt` Toggles peacetime on and off.
 
-`/pc <duration>` Turns on priority cooldown for a set time in minutesel.
-`/pc-inprogress` Turns on "Priority in Progress".
-`/pc-onhold` Turns on "Priorities on hold".
-`/pc-reset` Resets priority cooldown status to none.
+`/pc <duration>` Turns on priority cooldown for a set time in minutes.  
+`/pc-inprogress` Turns on "Priority in Progress".  
+`/pc-onhold` Turns on "Priorities on hold".  
+`/pc-reset` Resets priority cooldown status to none.  
 
 `/SetAOP <aop>` Sets the aop to whatever arguments are given. Requires permission node BadgerEssentials.Command.SetAOP
 
