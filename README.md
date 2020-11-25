@@ -11,7 +11,7 @@ or like the name of the script name, essentials.
 
 `/Respawn` Respawns the player who executes this command.
 
-`/Pt` Toggles peacetime on and off.
+`/pt` Toggles peacetime on and off.
 
 `/pc <duration>` Turns on priority cooldown for a set time in minutes.  
 `/pc-inprogress` Turns on "Priority in Progress".  
