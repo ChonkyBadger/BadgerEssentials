@@ -5,13 +5,13 @@ This script basically add lots of useful stuff, such as /revive and /respawn,
 or like the name of the script name, essentials.
 
 ## Commands
-`/Toggle-Hud` Toggles the hud.
+`/toggle-hud` Toggles the hud.
 
 `/die` Kills the player who executes this command.
 
-`/Revive [Target Player ID]` Revives the player who executes this command or another player, specified by their ID.
+`/revive [Target Player ID]` Revives the player who executes this command or another player, specified by their ID.
 
-`/Respawn` Respawns the player who executes this command.
+`/respawn` Respawns the player who executes this command.
 
 `/pt` Toggles peacetime on and off.
 
@@ -20,11 +20,11 @@ or like the name of the script name, essentials.
 `/pc-onhold` Turns on "Priorities on hold".  
 `/pc-reset` Resets priority cooldown status to none.  
 
-`/SetAOP <aop>` Sets the aop to whatever arguments are given. Requires permission node BadgerEssentials.Command.SetAOP
+`/setAOP <aop>` Sets the aop to whatever arguments are given. Requires permission node BadgerEssentials.Command.SetAOP
 
-`/Postal <postal>` Sets a waypoint to the specified postal.
+`/postal <postal>` Sets a waypoint to the specified postal.
 
-`/Announce <Announcement Message>` Displays a message to all players on the server. Requires permission node BadgerEssentials.Command.Announce  
+`/announce <Announcement Message>` Displays a message to all players on the server. Requires permission node BadgerEssentials.Command.Announce  
 
 ## Configuration
 ### "displayElements"
