@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
 
@@ -8,15 +9,30 @@ namespace BadgerEssentialsServer
 {
     public class BadgerEssentialsServer : BaseScript
     {
+        string jsonConfig = LoadResourceFile("BadgerEssentials", "config/config.json");
+
+        string currentAOP = "Sandy Shores test";
+        bool peacetime = false;
+        string currentPriorityStatus = "none";
+        int priorityTime = 0;
+
+        bool priorityTimerActive = false;
         public BadgerEssentialsServer()
         {
+            Tick += OnTickPriorityTimer;
+
+            JObject o = JObject.Parse(jsonConfig);
+
+            currentAOP = (string)o.SelectToken("displayElements.aop.defaultAOP");
             //
             // Event Listeners
             //
 
+            EventHandlers["BadgerEssentials:GetAOPFromServer"] += new Action<int>(SendAOP);
+
             //
             // Commands
-            //\n
+            //\
 
             // Revive Command
             RegisterCommand("revive", new Action<int, List<object>, string>((source, args, raw) =>
@@ -51,32 +67,54 @@ namespace BadgerEssentialsServer
             RegisterCommand("pc", new Action<int, List<object>, string>((source, args, raw) =>
             {
                 if (IsPlayerAceAllowed(source.ToString(), "BadgerEssentials.Command.PriorityCooldown") && args.Count > 0 && args[0].ToString() != "0")
-                    TriggerClientEvent("BadgerEssentials:PriorityCooldown", -1, "pc", int.Parse(args[0].ToString()));
+                {
+                    currentPriorityStatus = "pc";
+                    priorityTime = int.Parse(args[0].ToString());
+                    TriggerClientEvent("BadgerEssentials:PriorityCooldown", "pc", priorityTime);
+                }
             }), false);
             // Priority Cooldown in progress
             RegisterCommand("pc-inprogress", new Action<int, List<object>, string>((source, args, raw) =>
             {
                 if (IsPlayerAceAllowed(source.ToString(), "BadgerEssentials.Command.PriorityCooldown"))
-                    TriggerClientEvent("BadgerEssentials:PriorityCooldown", -1, "inprogress", 0);
+                {
+                    currentPriorityStatus = "inprogress";
+                    priorityTime = 0;
+                    TriggerClientEvent("BadgerEssentials:PriorityCooldown", "inprogress", 0);
+                }
             }), false);
             // Priority Cooldown on hold
             RegisterCommand("pc-onhold", new Action<int, List<object>, string>((source, args, raw) =>
             {
                 if (IsPlayerAceAllowed(source.ToString(), "BadgerEssentials.Command.PriorityCooldown"))
-                    TriggerClientEvent("BadgerEssentials:PriorityCooldown", -1, "onhold", 0);
+                {
+                    currentPriorityStatus = "onhold";
+                    priorityTime = 0;
+                    TriggerClientEvent("BadgerEssentials:PriorityCooldown", "onhold", 0);
+                }
             }), false);
             // Priority Cooldown reset
             RegisterCommand("pc-reset", new Action<int, List<object>, string>((source, args, raw) =>
             {
                 if (IsPlayerAceAllowed(source.ToString(), "BadgerEssentials.Command.PriorityCooldown"))
-                    TriggerClientEvent("BadgerEssentials:PriorityCooldown", -1, "reset", 0);
+                {
+                    currentPriorityStatus = "reset";
+                    priorityTime = 0;
+                    TriggerClientEvent("BadgerEssentials:PriorityCooldown", "reset", 0);
+                }
             }), false);
 
             // Toggle Peacetime
             RegisterCommand("pt", new Action<int, List<object>, string>((source, args, raw) =>
             {
                 if (IsPlayerAceAllowed(source.ToString(), "BadgerEssentials.Command.Peacetime"))
-                    TriggerClientEvent("BadgerEssentials:Peacetime", -1);
+                {
+                    if (peacetime)
+                        peacetime = false;
+                    else peacetime = true;
+
+                    TriggerClientEvent("BadgerEssentials:Peacetime", peacetime);
+                }
             }), false);
 
             // Set AOP
@@ -85,9 +123,42 @@ namespace BadgerEssentialsServer
                 if (args.Count > 0 && IsPlayerAceAllowed(source.ToString(), "BadgerEssentials.Command.SetAOP"))
                 {
                     string targetAOP = String.Join(" ", args);
-                    TriggerClientEvent("BadgerEssentials:SetAOP", -1, targetAOP);
+                    currentAOP = targetAOP;
+                    TriggerClientEvent("BadgerEssentials:SetAOP", targetAOP);
                 }
             }), false);
+        }
+
+        // Receive AOP / Peacetime / PC status from server
+        private void SendAOP(int source)
+		{
+            TriggerClientEvent("BadgerEssentials:SendAOPToClient", currentAOP, peacetime, currentPriorityStatus, priorityTime);
+        }
+
+        private async Task OnTickPriorityTimer()
+        {
+            if (!priorityTimerActive && priorityTime > 0)
+                priorityTimerActive = true;
+            else if (priorityTimerActive && priorityTime > 0)
+            {
+                await Delay(60000);
+                priorityTime--;
+                if (priorityTime > 0)
+                {
+                    // Update remaining time for client
+                    TriggerClientEvent("BadgerEssentials:PriorityCooldown", "pc", priorityTime);
+                }
+                else
+                {
+                    // Disable PC for client
+                    TriggerClientEvent("BadgerEssentials:Prioritycooldown", "none", priorityTime);
+                }
+            }
+            else if (priorityTimerActive && priorityTime <= 0)
+            {
+                priorityTimerActive = false;
+                currentPriorityStatus = "none";
+            }
         }
     }
 }

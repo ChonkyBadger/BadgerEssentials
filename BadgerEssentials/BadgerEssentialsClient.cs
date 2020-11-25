@@ -9,12 +9,12 @@ using System.Linq;
 
 namespace BadgerEssentials
 {
-    public class BadgerEssentials : BaseScript
-    {
-        string jsonConfig = LoadResourceFile("BadgerEssentials", "config/config.json");
-        string jsonPostals = LoadResourceFile("BadgerEssentials", "config/postals.json");
+	public class BadgerEssentials : BaseScript
+	{
+		string jsonConfig = LoadResourceFile("BadgerEssentials", "config/config.json");
+		string jsonPostals = LoadResourceFile("BadgerEssentials", "config/postals.json");
 
-        JArray a;
+		JArray a;        
 
         // Revive
         bool deadCheck;
@@ -28,41 +28,29 @@ namespace BadgerEssentials
         int announcementDuration;
         string annMsg;
 
+        //
         // Display Elements
+        //
         bool toggleHud = true;
 
-        uint streetNameHash;
-        uint crossingRoadHash;
+        // Street Label
         Vector2 streetLabelPos;
         float streetLabelScale = 0.6f;
         int streetLabelAllignment = 1;
+        bool streetLabelEnabled;
+
+        uint streetNameHash;
+        uint crossingRoadHash;
         string streetLabelHeading;
         string streetLabelStreetName;
         string streetLabelZone;
 
+        // Postal
         Vector2 postalPos;
         float postalScale;
         int postalAllignment;
+        bool postalEnabled;
 
-        bool peacetimeStatus = false;
-        string peacetimeText = "~r~disabled";
-        Vector2 peacetimePos;
-        float peacetimeStatusScale;
-        int peacetimeAllignment;
-
-        string priorityCooldownStatus = "none";
-        bool priorityCooldownTimerActive;
-        int priorityCooldownTimer;
-        Vector2 priorityCooldownPos;
-        float priorityCooldownScale;
-        int priorityCooldownAllignment;
-
-        string currentAOP;
-        Vector2 aopPos;
-        float aopScale;
-        int aopAllignment;
-
-        // Postal Stuff
         float nearestPostalDistance;
         int nearestPostalCode;
         int postalArrayIndex;
@@ -70,12 +58,36 @@ namespace BadgerEssentials
         List<int> postalXValues = new List<int>();
         List<int> postalYValues = new List<int>();
 
+        // Peacetime
+        Vector2 peacetimePos;
+        float peacetimeStatusScale;
+        int peacetimeAllignment;
+        bool peacetimeEnabled;
+
+        bool peacetimeStatus;
+        string peacetimeText;
+
+        // Priority Cooldown
+        Vector2 priorityCooldownPos;
+        float priorityCooldownScale;
+        int priorityCooldownAllignment;
+        bool priorityCooldownEnabled;
+
+        string priorityCooldownStatus;
+
+        // Aop
+        Vector2 aopPos;
+        float aopScale;
+        int aopAllignment;
+        bool aopEnabled;
+
+        string currentAOP;
+
         public BadgerEssentials()
         {
             Tick += OnTickDraw2DText;
             Tick += OnTickRevTimer;
             Tick += OnTickAnnTimer;
-            Tick += OnTickPriorityTimer;
             Tick += OnTick250Ms; // Postal + Street Label
 
             //
@@ -88,31 +100,35 @@ namespace BadgerEssentials
             // Street Label
             streetLabelPos.X = (float)o.SelectToken("displayElements.streetLabel.x");
             streetLabelPos.Y = (float)o.SelectToken("displayElements.streetLabel.y");
+            streetLabelEnabled = (bool)o.SelectToken("displayElements.streetLabel.enabled");
 
             // Pacetime
             peacetimePos.X = (float)o.SelectToken("displayElements.peacetime.x");
             peacetimePos.Y = (float)o.SelectToken("displayElements.peacetime.y");
             peacetimeStatusScale = (float)o.SelectToken("displayElements.peacetime.scale");
             peacetimeAllignment = (int)o.SelectToken("displayElements.peacetime.textAllignment");
+            peacetimeEnabled = (bool)o.SelectToken("displayElements.peacetime.enabled");
 
             // Priority Cooldown
             priorityCooldownPos.X = (float)o.SelectToken("displayElements.priorityCooldown.x");
             priorityCooldownPos.Y = (float)o.SelectToken("displayElements.priorityCooldown.y");
             priorityCooldownScale = (float)o.SelectToken("displayElements.priorityCooldown.scale");
             priorityCooldownAllignment = (int)o.SelectToken("displayElements.priorityCooldown.textAllignment");
+            priorityCooldownEnabled = (bool)o.SelectToken("displayElements.priorityCooldown.enabled");
 
             // Aop
-            currentAOP = (string)o.SelectToken("displayElements.aop.defaultAOP");
             aopPos.X = (float)o.SelectToken("displayElements.aop.x");
             aopPos.Y = (float)o.SelectToken("displayElements.aop.y");
             aopScale = (float)o.SelectToken("displayElements.aop.scale");
             aopAllignment = (int)o.SelectToken("displayElements.aop.textAllignment");
+            aopEnabled = (bool)o.SelectToken("displayElements.aop.enabled");
 
             // Postal
             postalPos.X = (float)o.SelectToken("displayElements.postal.x");
             postalPos.Y = (float)o.SelectToken("displayElements.postal.y");
             postalScale = (float)o.SelectToken("displayElements.postal.scale");
             postalAllignment = (int)o.SelectToken("displayElements.postal.textAllignment");
+            postalEnabled = (bool)o.SelectToken("displayElements.postal.enabled");
 
             // Timers
             revDelay = (int)o.SelectToken("commands.revive.cooldown");
@@ -129,16 +145,20 @@ namespace BadgerEssentials
                 postalYValues.Add((int)item.GetValue("y"));
             }
 
+            // Sync up AOP + PT + PC
+            TriggerServerEvent("BadgerEssentials:GetAOPFromServer", GetPlayerPed(-1));
+
             //
             // Event Listeners
             //
 
             EventHandlers["onClientMapStart"] += new Action(OnClientMapStart); // To disable autospawn
             EventHandlers["BadgerEssentials:RevivePlayer"] += new Action<int, bool, bool>(RevivePlayer);
-            EventHandlers["BadgerEssentials:Announce"] += new Action<int, string>(Announce);
-            EventHandlers["BadgerEssentials:PriorityCooldown"] += new Action<int, string, int>(SetPriorityCooldown);
-            EventHandlers["BadgerEssentials:Peacetime"] += new Action(TogglePeacetime);
+            EventHandlers["BadgerEssentials:Announce"] += new Action<string>(Announce);
+            EventHandlers["BadgerEssentials:PriorityCooldown"] += new Action<string, int>(SetPriorityCooldown);
+            EventHandlers["BadgerEssentials:Peacetime"] += new Action<bool>(TogglePeacetime);
             EventHandlers["BadgerEssentials:SetAOP"] += new Action<string>(SetAOP);
+            EventHandlers["BadgerEssentials:SendAOPToClient"] += new Action<string, bool, string, int>(GetAOPFromServer);
 
             //
             // Commands
@@ -199,13 +219,19 @@ namespace BadgerEssentials
             if (toggleHud)
 			{
                 // Draw 2D Text
-                Draw2DText(streetLabelPos.X, streetLabelPos.Y, "~y~" + streetLabelHeading + " ~s~|~y~ " + streetLabelStreetName, streetLabelScale, streetLabelAllignment);
-                Draw2DText(streetLabelPos.X, streetLabelPos.Y + 0.030f, streetLabelZone, streetLabelScale / 1.1f, streetLabelAllignment);
-
-                Draw2DText(postalPos.X, postalPos.Y, "~y~Nearest Postal:~s~ " + nearestPostalCode + " (" + (int)nearestPostalDistance + "m)", postalScale, postalAllignment);
-                Draw2DText(peacetimePos.X, peacetimePos.Y, "~y~Peacetime:~s~ " + peacetimeText, peacetimeStatusScale, peacetimeAllignment);
-                Draw2DText(priorityCooldownPos.X, priorityCooldownPos.Y, "~y~Priority Cooldown:~s~ " + priorityCooldownStatus, priorityCooldownScale, priorityCooldownAllignment);
-                Draw2DText(aopPos.X, aopPos.Y, "~y~AOP:~s~ " + currentAOP, aopScale, aopAllignment);
+                if (streetLabelEnabled)
+				{
+                    Draw2DText(streetLabelPos.X, streetLabelPos.Y, "~y~" + streetLabelHeading + " ~s~|~y~ " + streetLabelStreetName, streetLabelScale, streetLabelAllignment);
+                    Draw2DText(streetLabelPos.X, streetLabelPos.Y + 0.030f, streetLabelZone, streetLabelScale / 1.1f, streetLabelAllignment);
+                }
+                if (postalEnabled)
+                    Draw2DText(postalPos.X, postalPos.Y, "~y~Nearest Postal:~s~ " + nearestPostalCode + " (" + (int)nearestPostalDistance + "m)", postalScale, postalAllignment);
+                if (peacetimeEnabled)
+                    Draw2DText(peacetimePos.X, peacetimePos.Y, "~y~Peacetime:~s~ " + peacetimeText, peacetimeStatusScale, peacetimeAllignment);
+                if (priorityCooldownEnabled)
+                    Draw2DText(priorityCooldownPos.X, priorityCooldownPos.Y, "~y~Priority Cooldown:~s~ " + priorityCooldownStatus, priorityCooldownScale, priorityCooldownAllignment);
+                if (aopEnabled)
+                    Draw2DText(aopPos.X, aopPos.Y, "~y~AOP:~s~ " + currentAOP, aopScale, aopAllignment);
 
                 if (deadCheck)
                 {
@@ -274,24 +300,6 @@ namespace BadgerEssentials
                 annTimerActive = false;
         }
 
-        // OnTick Priority Cooldown Timer
-        private async Task OnTickPriorityTimer()
-		{
-            if (!priorityCooldownTimerActive && priorityCooldownTimer > 0) 
-                priorityCooldownTimerActive = true;
-            else if (priorityCooldownTimerActive && priorityCooldownTimer > 0)
-            {
-                await Delay(60000);
-                priorityCooldownTimer--;
-                priorityCooldownStatus = priorityCooldownTimer + " ~r~minutes";
-            }
-            else if (priorityCooldownTimerActive && priorityCooldownTimer <= 0)
-			{
-                priorityCooldownTimerActive = false;
-                priorityCooldownStatus = "none";
-            }                   
-		}
-
         // OnTick PostalsStreetLabel
         private async Task OnTick250Ms()
         {
@@ -306,45 +314,68 @@ namespace BadgerEssentials
             nearestPostalDistance = distanceList.Min();
             postalArrayIndex = distanceList.IndexOf(distanceList.Min());
             postalArrayIndex = Array.IndexOf(distanceList.ToArray(), distanceList.Min());
-            nearestPostalCode = postalCodeValues[postalArrayIndex];
+            nearestPostalCode = postalCodeValues[postalArrayIndex];      
 
             // Street Label
-            float rawHeading = GetEntityHeading(ped);
+            if (streetLabelEnabled)
+			{
+                float rawHeading = GetEntityHeading(ped);
 
-            if (rawHeading <= 337.5 && rawHeading > 292.5)
-                streetLabelHeading = "NE";
-            else if (rawHeading <= 292.5 && rawHeading > 247.5)
-                streetLabelHeading = "E";
-            else if (rawHeading <= 247.5 && rawHeading > 202.5)
-                streetLabelHeading = "SE";
-            else if (rawHeading <= 202.5 && rawHeading > 157.5)
-                streetLabelHeading = "S";
-            else if (rawHeading <= 157.5 && rawHeading > 112.5)
-                streetLabelHeading = "SW";
-            else if (rawHeading <= 112.5 && rawHeading > 67.5)
-                streetLabelHeading = "W";
-            else if (rawHeading <= 67.5 && rawHeading > 22.5)
-                streetLabelHeading = "NW";
-            else
-                streetLabelHeading = "N";
+                if (rawHeading <= 337.5 && rawHeading > 292.5)
+                    streetLabelHeading = "NE";
+                else if (rawHeading <= 292.5 && rawHeading > 247.5)
+                    streetLabelHeading = "E";
+                else if (rawHeading <= 247.5 && rawHeading > 202.5)
+                    streetLabelHeading = "SE";
+                else if (rawHeading <= 202.5 && rawHeading > 157.5)
+                    streetLabelHeading = "S";
+                else if (rawHeading <= 157.5 && rawHeading > 112.5)
+                    streetLabelHeading = "SW";
+                else if (rawHeading <= 112.5 && rawHeading > 67.5)
+                    streetLabelHeading = "W";
+                else if (rawHeading <= 67.5 && rawHeading > 22.5)
+                    streetLabelHeading = "NW";
+                else
+                    streetLabelHeading = "N";
 
-            uint streetNameCrossRoad(int streetNameCrossingRoad)
-            {
-                GetStreetNameAtCoord(pos.X, pos.Y, pos.Z, ref streetNameHash, ref crossingRoadHash);
-                if (streetNameCrossingRoad == 0)
-                    return streetNameHash;
-                else return crossingRoadHash;
+                uint streetNameCrossRoad(int streetNameCrossingRoad)
+                {
+                    GetStreetNameAtCoord(pos.X, pos.Y, pos.Z, ref streetNameHash, ref crossingRoadHash);
+                    if (streetNameCrossingRoad == 0)
+                        return streetNameHash;
+                    else return crossingRoadHash;
+                }
+                streetLabelStreetName = GetStreetNameFromHashKey(streetNameCrossRoad(0));
+                if (GetStreetNameFromHashKey(streetNameCrossRoad(1)) != string.Empty)
+                    streetLabelStreetName += " ~s~/~y~ " + GetStreetNameFromHashKey(streetNameCrossRoad(1));
+                streetLabelZone = GetLabelText(GetNameOfZone(pos.X, pos.Y, pos.Z));
             }
-            streetLabelStreetName = GetStreetNameFromHashKey(streetNameCrossRoad(0));
-            if (GetStreetNameFromHashKey(streetNameCrossRoad(1)) != string.Empty)
-                streetLabelStreetName += " ~s~/~y~ " + GetStreetNameFromHashKey(streetNameCrossRoad(1));
-            streetLabelZone = GetLabelText(GetNameOfZone(pos.X, pos.Y, pos.Z));
         }
 
 
         //
         // Methods
         //
+
+        // Draw 2D Text on screen
+        public void Draw2DText(float x, float y, string text, float scale, int allignment)
+        {
+            SetTextFont(4);
+            SetTextScale(scale, scale);
+            SetTextColour(255, 255, 255, 255);
+            SetTextDropShadow();
+            SetTextOutline();
+            if (allignment == 0)
+                SetTextJustification(0); // Center
+            else if (allignment == 1)
+                SetTextJustification(1); // Left
+            else if (allignment == 2)
+                SetTextJustification(2); // Right
+            SetTextEntry("STRING");
+            AddTextComponentString(text);
+            DrawText(x, y);
+        }
+
 
         // Map Start
         public void OnClientMapStart()
@@ -354,7 +385,7 @@ namespace BadgerEssentials
             Exports["spawnmanager"].setAutoSpawn(false);
         }
 
-        // Revive Player
+        // Revive Player Command
         public void RevivePlayer(int eventParam1, bool selfRevive, bool timerBypass)
         {
             int ped = GetPlayerPed(-1);
@@ -380,7 +411,7 @@ namespace BadgerEssentials
         }
 
         // Make an announcement on screen
-        public void Announce(int source, string announcementMsg)
+        public void Announce(string announcementMsg)
         {
             annMsg = String.Empty;
             // Split up message if more than 70 characters long
@@ -408,45 +439,22 @@ namespace BadgerEssentials
         }
 
         // Priority Cooldown
-        public void SetPriorityCooldown(int source, string priorityCooldown, int minutes)
+        public void SetPriorityCooldown(string priorityCooldown, int minutes)
 		{
             if (priorityCooldown == "pc")
-            {
-                priorityCooldownTimer = minutes;
                 priorityCooldownStatus = minutes + " ~r~minutes";
-            }
             else if (priorityCooldown == "inprogress")
                 priorityCooldownStatus = "~g~Priority in progress";
             else if (priorityCooldown == "onhold")
                 priorityCooldownStatus = "~b~Priorities on hold";
-            else if (priorityCooldown == "reset")
+            else if (priorityCooldown == "reset" || priorityCooldown == "none")
                 priorityCooldownStatus = "none";
 		}
 
-        // Draw 2D Text on screen
-        public void Draw2DText(float x, float y, string text, float scale, int allignment)
-        {
-            SetTextFont(4);
-            SetTextScale(scale, scale);
-            SetTextColour(255, 255, 255, 255);
-            SetTextDropShadow();
-            SetTextOutline();
-            if (allignment == 0)
-                SetTextJustification(0); // Center
-            else if (allignment == 1)
-                SetTextJustification(1); // Left
-            else if (allignment == 2)
-                SetTextJustification(2); // Right
-            SetTextEntry("STRING");
-            AddTextComponentString(text);
-            DrawText(x, y);
-        }
-
         // For pt command
-		public void TogglePeacetime()
+		public void TogglePeacetime(bool peacetime)
 		{
-            Debug.WriteLine("test client");
-            if (peacetimeStatus == false)
+            if (peacetime)
             {
                 peacetimeStatus = true;
                 peacetimeText = "~g~enabled";
@@ -459,10 +467,17 @@ namespace BadgerEssentials
         }
 
         // For SetAOP command
-        public void SetAOP(string targetAOP)
+        public void SetAOP(string aop)
 		{
-            currentAOP = targetAOP;
+            currentAOP = aop;
         }
 
+        // Activates once when client joins to sync aop
+        public void GetAOPFromServer(string aop, bool peacetime, string priority, int priorityTime)
+		{
+            currentAOP = aop;
+            SetPriorityCooldown(priority, priorityTime);
+            TogglePeacetime(peacetime);
+		}
     }
 }
