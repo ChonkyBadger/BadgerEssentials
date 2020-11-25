@@ -5,7 +5,9 @@ This script basically add lots of useful stuff, such as /revive and /respawn,
 or like the name of the script name, essentials.
 
 ## Commands
-`/Die` Kills the player who executes this command.
+`/Toggle-Hud` Toggles the hud.
+
+`/die` Kills the player who executes this command.
 
 `/Revive [Target Player ID]` Revives the player who executes this command or another player, specified by their ID.
 
