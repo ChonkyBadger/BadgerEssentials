@@ -41,6 +41,9 @@ Here, you can edit properties of commands.
 `BadgerEssentials.Command.SetAOP` Gives access to /SetAOP.  
 `BadgerEssentials.Bypass.ReviveTimer` Bypasses the timer before you can revive.    
 
+## Credit
+- [Badger](https://forum.cfx.re/u/OfficialBadger)
+
 ## Links
 - [Postal Map used by this script](https://github.com/ocrp/postal_map/)
 - [My Discord Server](https://discord.gg/TFCQE8d)
