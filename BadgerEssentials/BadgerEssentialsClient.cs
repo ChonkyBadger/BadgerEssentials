@@ -16,6 +16,10 @@ namespace BadgerEssentials
 
 		JArray a;
 
+        // Ragdoll Script
+        bool isRagdolled = false;
+        int ragdollKey;
+
         string colour1; // Yellow stuff by default
         string colour2; // White stuff by default
 
@@ -88,17 +92,23 @@ namespace BadgerEssentials
 
         public BadgerEssentials()
         {
-            Tick += OnTickDraw2DText;
-            Tick += OnTickRevTimer;
-            Tick += OnTickAnnTimer;
+            Tick += OnTick;
+            Tick += OnTickRevTimer; // Revive Timer
+            Tick += OnTickAnnTimer; // Announcement Timer
             Tick += OnTick250Ms; // Postal + Street Label
 
             //
             // Parse json config
             //
 
-            // Json Config Objects
             JObject o = JObject.Parse(jsonConfig);
+
+            // Ragdoll Script
+            ragdollKey = (int)o.SelectToken("ragdoll.key");
+
+            //
+            // Display Elements
+            // 
 
             // Colours
             colour1 = (string)o.SelectToken("displayElements.colours.colour1");
@@ -220,7 +230,7 @@ namespace BadgerEssentials
         // onTick methods;
         //
 
-        private async Task OnTickDraw2DText()
+        private async Task OnTick()
         {
             int ped = GetPlayerPed(-1);
             if (toggleHud)
@@ -261,6 +271,26 @@ namespace BadgerEssentials
 
                 if (IsControlPressed(0, 106))
                     Screen.ShowNotification("~r~Peacetime is enabled. ~n~~s~You can not shoot.");
+            }
+
+            // Ragdoll Script
+            // Check if "U" (303) is pressed
+            if (IsControlJustPressed(1, ragdollKey))
+            {
+                if (!isRagdolled)
+                {
+                    isRagdolled = true;
+                }
+                else
+                {
+                    isRagdolled = false;
+                }
+            }
+
+            // Ragdoll the player
+            if (isRagdolled)
+            {
+                SetPedToRagdoll(GetPlayerPed(-1), 750, 750, 0, true, true, false);
             }
         }
 
