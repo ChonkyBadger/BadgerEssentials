@@ -19,6 +19,7 @@ namespace BadgerEssentials
         // Ragdoll Script
         bool isRagdolled = false;
         int ragdollKey;
+        bool ragdollEnabled;
 
         string colour1; // Yellow stuff by default
         string colour2; // White stuff by default
@@ -105,6 +106,7 @@ namespace BadgerEssentials
 
             // Ragdoll Script
             ragdollKey = (int)o.SelectToken("ragdoll.key");
+            ragdollEnabled = (bool)o.SelectToken("ragdoll.enabled");
 
             //
             // Display Elements
@@ -275,7 +277,7 @@ namespace BadgerEssentials
 
             // Ragdoll Script
             // Check if "U" (303) is pressed
-            if (IsControlJustPressed(1, ragdollKey))
+            if (IsControlJustPressed(1, ragdollKey) && ragdollEnabled)
             {
                 if (!isRagdolled)
                 {
