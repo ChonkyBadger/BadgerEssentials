@@ -4,6 +4,9 @@ A C# FiveM script. It is inspired by Badssentials, a great lua script by Badger.
 This script basically add lots of useful stuff, such as /revive and /respawn,  
 or like the name of the script name, essentials.
 
+## Features
+**Ragdoll:** Players can toggle ragdoll by pressing "U" by default, editable in config.
+
 ## Commands
 `/toggle-hud` Toggles the hud.
 
@@ -36,6 +39,10 @@ For example, the x and y position of the aop.
 ### "commands"
 Here, you can edit properties of commands.  
 **Cooldown values:** A number of seconds, must be an integer (whole number).
+
+### "ragdoll"
+**Key:** This decides what key will cause the player to ragdoll, by default, "U"  
+https://docs.fivem.net/docs/game-references/controls/
 
 ## Permissions
 `BadgerEssentials.Command.Announce` Gives access to the /Announce command.  
