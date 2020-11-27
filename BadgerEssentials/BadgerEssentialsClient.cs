@@ -11,8 +11,8 @@ namespace BadgerEssentials
 {
 	public class BadgerEssentials : BaseScript
 	{
-		string jsonConfig = LoadResourceFile("BadgerEssentials", "config/config.json");
-		string jsonPostals = LoadResourceFile("BadgerEssentials", "config/postals.json");
+		string jsonConfig = LoadResourceFile(GetCurrentResourceName(), "config/config.json");
+		string jsonPostals = LoadResourceFile(GetCurrentResourceName(), "config/postals.json");
 
 		JArray a;
 
@@ -172,7 +172,7 @@ namespace BadgerEssentials
             //
 
             EventHandlers["onClientMapStart"] += new Action(OnClientMapStart); // To disable autospawn
-            EventHandlers["BadgerEssentials:RevivePlayer"] += new Action<int, bool, bool>(RevivePlayer);
+            EventHandlers["BadgerEssentials:RevivePlayer"] += new Action<bool, bool>(RevivePlayer);
             EventHandlers["BadgerEssentials:Announce"] += new Action<string>(Announce);
             EventHandlers["BadgerEssentials:PriorityCooldown"] += new Action<string, int>(SetPriorityCooldown);
             EventHandlers["BadgerEssentials:Peacetime"] += new Action<bool>(TogglePeacetime);
@@ -425,7 +425,7 @@ namespace BadgerEssentials
         }
 
         // Revive Player Command
-        public void RevivePlayer(int eventParam1, bool selfRevive, bool timerBypass)
+        public void RevivePlayer(bool selfRevive, bool timerBypass)
         {
             int ped = GetPlayerPed(-1);
             Vector3 pedpos = GetEntityCoords(ped, true);

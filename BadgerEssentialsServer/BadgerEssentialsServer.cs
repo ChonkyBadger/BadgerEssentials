@@ -37,19 +37,32 @@ namespace BadgerEssentialsServer
             // Revive Command
             RegisterCommand("revive", new Action<int, List<object>, string>((source, args, raw) =>
             {
+                PlayerList pl = new PlayerList();
 
                 // Revive Self 
                 if (args.Count == 0 || int.Parse(args[0].ToString()) == source)
+                {
+                    Player player = pl[source];
+
                     if (IsPlayerAceAllowed(source.ToString(), "BadgerEssentials.Bypass.ReviveTimer"))
-                        TriggerClientEvent("BadgerEssentials:RevivePlayer", source, true, true);
+                    {
+                        TriggerClientEvent(player, "BadgerEssentials:RevivePlayer", true, true);
+                    }
                     else
-                        TriggerClientEvent("BadgerEssentials:RevivePlayer", source, true, false);
+                    {
+                        TriggerClientEvent(player, "BadgerEssentials:RevivePlayer", true, false);
+                    }
+                }
                 // Revive other person 
                 else if (int.Parse(args[0].ToString()) != source)
                 {
                     string playerName = GetPlayerName(args[0].ToString());
+                    Player player = pl[int.Parse(args[0].ToString())];
+
                     if (!string.IsNullOrEmpty(playerName))
-                        TriggerClientEvent("BadgerEssentials:RevivePlayer", int.Parse(args[0].ToString()), false, false); ;
+                    {
+                        TriggerClientEvent(player, "BadgerEssentials:RevivePlayer", false, false); ;
+                    }
                 }
             }), false);
 
@@ -59,9 +72,13 @@ namespace BadgerEssentialsServer
                 if (IsPlayerAceAllowed(source.ToString(), "BadgerEssentials.Command.Announce") && args.Count > 0)
 				{
                     string announcementMsg = String.Join(" ", args);
-                    TriggerClientEvent("BadgerEssentials:Announce", -1, announcementMsg);
+                    TriggerClientEvent("BadgerEssentials:Announce", announcementMsg);
 				}
             }), false);
+
+            //
+            // PRIORITY COOLDOWN COMMANDS
+            //
 
             // Priority Cooldown
             RegisterCommand("pc", new Action<int, List<object>, string>((source, args, raw) =>
@@ -73,6 +90,7 @@ namespace BadgerEssentialsServer
                     TriggerClientEvent("BadgerEssentials:PriorityCooldown", "pc", priorityTime);
                 }
             }), false);
+
             // Priority Cooldown in progress
             RegisterCommand("pc-inprogress", new Action<int, List<object>, string>((source, args, raw) =>
             {
@@ -83,6 +101,7 @@ namespace BadgerEssentialsServer
                     TriggerClientEvent("BadgerEssentials:PriorityCooldown", "inprogress", 0);
                 }
             }), false);
+
             // Priority Cooldown on hold
             RegisterCommand("pc-onhold", new Action<int, List<object>, string>((source, args, raw) =>
             {
@@ -93,6 +112,7 @@ namespace BadgerEssentialsServer
                     TriggerClientEvent("BadgerEssentials:PriorityCooldown", "onhold", 0);
                 }
             }), false);
+
             // Priority Cooldown reset
             RegisterCommand("pc-reset", new Action<int, List<object>, string>((source, args, raw) =>
             {
