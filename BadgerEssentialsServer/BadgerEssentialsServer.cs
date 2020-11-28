@@ -162,17 +162,12 @@ namespace BadgerEssentialsServer
             else if (priorityTimerActive && priorityTime > 0)
             {
                 await Delay(60000);
-                priorityTime--;
+                priorityTime--; 
+
+                // Update remaining time for client or disable if time is 0
                 if (priorityTime > 0)
-                {
-                    // Update remaining time for client
                     TriggerClientEvent("BadgerEssentials:PriorityCooldown", "pc", priorityTime);
-                }
-                else
-                {
-                    // Disable PC for client
-                    TriggerClientEvent("BadgerEssentials:Prioritycooldown", "none", priorityTime);
-                }
+                else TriggerClientEvent("BadgerEssentials:PriorityCooldown", "reset", priorityTime);
             }
             else if (priorityTimerActive && priorityTime <= 0)
             {
