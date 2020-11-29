@@ -51,6 +51,12 @@ https://docs.fivem.net/docs/game-references/controls/
 `BadgerEssentials.Command.SetAOP` Gives access to /SetAOP.  
 `BadgerEssentials.Bypass.ReviveTimer` Bypasses the timer before you can revive.    
 
+## Installation
+Under "releases", download the latest version and extract the files to a folder. You should have one folder with the script's  
+files in it. You should see a config folder, fxmanifest.lua, README.md, License, and 3 dlls. IF you see a .sln, it means you downloaded  
+the source code instead of the compiled files. In your server.cfg, you will want to add:  
+"start BadgerEssentials". If you did not name the folder, "BadgerEssentials", just replace it with whatever you did name it.  
+
 ## Credit
 - [Badger](https://forum.cfx.re/u/OfficialBadger)
 
