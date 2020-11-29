@@ -9,7 +9,7 @@ namespace BadgerEssentialsServer
 {
     public class BadgerEssentialsServer : BaseScript
     {
-        string jsonConfig = LoadResourceFile("BadgerEssentials", "config/config.json");
+        string jsonConfig = LoadResourceFile(GetCurrentResourceName(), "config/config.json");
 
         string currentAOP = "Sandy Shores test";
         bool peacetime = false;
