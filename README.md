@@ -46,7 +46,14 @@ https://docs.fivem.net/docs/game-references/controls/
 
 ## Permissions
 `BadgerEssentials.Command.Announce` Gives access to the /Announce command.  
-`BadgerEssentials.Command.PriorityCooldown` Gives access to priority cooldown commands.  
+
+`BadgerEssentials.Command.PriorityCooldown` Gives access to all priority cooldown commands.  
+`BadgerEssentials.Command.PC` Gives access to /pc  
+`BadgerEssentials.Command.PCInProgress` Gives access to /pc-inprogress  
+`BadgerEssentials.Command.PCOnHold` Gives access to /pc-onhold  
+`BadgerEssentials.Command.PCReset` Gives access to /pc-reset  
+
+
 `BadgerEssentials.Command.Peacetime` Gives access to /pt  
 `BadgerEssentials.Command.SetAOP` Gives access to /SetAOP.  
 `BadgerEssentials.Bypass.ReviveTimer` Bypasses the timer before you can revive.    
