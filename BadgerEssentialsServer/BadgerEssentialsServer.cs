@@ -29,10 +29,11 @@ namespace BadgerEssentialsServer
             //
 
             EventHandlers["BadgerEssentials:GetAOPFromServer"] += new Action<int>(SendAOP);
+            EventHandlers["BadgerEssentials:GetAOPFromBadgerAOPVote"] += new Action<string>(SetAOPFromVote);
 
             //
             // Commands
-            //\
+            //
 
             // Revive Command
             RegisterCommand("revive", new Action<int, List<object>, string>((source, args, raw) =>
@@ -83,18 +84,23 @@ namespace BadgerEssentialsServer
             // Priority Cooldown
             RegisterCommand("pc", new Action<int, List<object>, string>((source, args, raw) =>
             {
-                if (IsPlayerAceAllowed(source.ToString(), "BadgerEssentials.Command.PriorityCooldown") && args.Count > 0 && args[0].ToString() != "0")
+                if (args.Count > 0 && args[0].ToString() != "0")
                 {
-                    currentPriorityStatus = "pc";
-                    priorityTime = int.Parse(args[0].ToString());
-                    TriggerClientEvent("BadgerEssentials:PriorityCooldown", "pc", priorityTime);
+                    if (IsPlayerAceAllowed(source.ToString(), "BadgerEssentials.Command.PriorityCooldown") ||
+                        IsPlayerAceAllowed(source.ToString(), "BadgerEssentials.Command.PCOnHold"))
+                    {
+                        currentPriorityStatus = "pc";
+                        priorityTime = int.Parse(args[0].ToString());
+                        TriggerClientEvent("BadgerEssentials:PriorityCooldown", "pc", priorityTime);
+                    }
                 }
             }), false);
 
             // Priority Cooldown in progress
             RegisterCommand("pc-inprogress", new Action<int, List<object>, string>((source, args, raw) =>
             {
-                if (IsPlayerAceAllowed(source.ToString(), "BadgerEssentials.Command.PriorityCooldown"))
+                if (IsPlayerAceAllowed(source.ToString(), "BadgerEssentials.Command.PriorityCooldown") ||
+                    IsPlayerAceAllowed(source.ToString(), "BadgerEssentials.Command.PCInProgress"))
                 {
                     currentPriorityStatus = "inprogress";
                     priorityTime = 0;
@@ -105,7 +111,8 @@ namespace BadgerEssentialsServer
             // Priority Cooldown on hold
             RegisterCommand("pc-onhold", new Action<int, List<object>, string>((source, args, raw) =>
             {
-                if (IsPlayerAceAllowed(source.ToString(), "BadgerEssentials.Command.PriorityCooldown"))
+                if (IsPlayerAceAllowed(source.ToString(), "BadgerEssentials.Command.PriorityCooldown") ||
+                    IsPlayerAceAllowed(source.ToString(), "BadgerEssentials.Command.PCOnHold"))
                 {
                     currentPriorityStatus = "onhold";
                     priorityTime = 0;
@@ -116,7 +123,8 @@ namespace BadgerEssentialsServer
             // Priority Cooldown reset
             RegisterCommand("pc-reset", new Action<int, List<object>, string>((source, args, raw) =>
             {
-                if (IsPlayerAceAllowed(source.ToString(), "BadgerEssentials.Command.PriorityCooldown"))
+                if (IsPlayerAceAllowed(source.ToString(), "BadgerEssentials.Command.PriorityCooldown") ||
+                    IsPlayerAceAllowed(source.ToString(), "BadgerEssentials.Command.PCReset"))
                 {
                     currentPriorityStatus = "reset";
                     priorityTime = 0;
@@ -153,6 +161,15 @@ namespace BadgerEssentialsServer
         private void SendAOP(int source)
 		{
             TriggerClientEvent("BadgerEssentials:SendAOPToClient", currentAOP, peacetime, currentPriorityStatus, priorityTime);
+        }
+
+        // Receive aop from BadgerAOPVote
+        private void SetAOPFromVote(string aop)
+        {
+            Debug.WriteLine("received from aop vote");
+
+            currentAOP = aop;
+            TriggerClientEvent("BadgerEssentials:SetAOP", aop);
         }
 
         private async Task OnTickPriorityTimer()
