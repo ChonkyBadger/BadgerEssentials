@@ -57,8 +57,8 @@ namespace BadgerEssentialsServer
                 // Revive other person 
                 else if (int.Parse(args[0].ToString()) != source)
                 {
-                    string playerName = GetPlayerName(args[0].ToString());
                     Player player = pl[int.Parse(args[0].ToString())];
+                    string playerName = player.Name;
 
                     if (!string.IsNullOrEmpty(playerName))
                     {

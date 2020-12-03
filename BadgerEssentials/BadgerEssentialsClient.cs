@@ -13,8 +13,11 @@ namespace BadgerEssentials
 	{
 		string jsonConfig = LoadResourceFile(GetCurrentResourceName(), "config/config.json");
 		string jsonPostals = LoadResourceFile(GetCurrentResourceName(), "config/postals.json");
+        string jsonCustomDisplays = LoadResourceFile(GetCurrentResourceName(), "config/customDisplayElements.json");
 
-		JArray a;
+        JArray a;
+        JArray customDisplays;
+        bool enableCustomDisplays;
 
         // Ragdoll Script
         bool isRagdolled = false;
@@ -52,6 +55,12 @@ namespace BadgerEssentials
         string streetLabelHeading;
         string streetLabelStreetName;
         string streetLabelZone;
+
+        // Player ID
+        Vector2 playerIDPos;
+        float playerIDScale;
+        int playerIDAllignment;
+        bool playerIDDEnabled;
 
         // Postal
         Vector2 postalPos;
@@ -112,6 +121,8 @@ namespace BadgerEssentials
             // Display Elements
             // 
 
+            enableCustomDisplays = (bool)o.SelectToken("displayElements.enableCustomDisplayElements");
+
             // Colours
             colour1 = (string)o.SelectToken("displayElements.colours.colour1");
             colour2 = (string)o.SelectToken("displayElements.colours.colour2");
@@ -142,6 +153,13 @@ namespace BadgerEssentials
             aopAllignment = (int)o.SelectToken("displayElements.aop.textAllignment");
             aopEnabled = (bool)o.SelectToken("displayElements.aop.enabled");
 
+            // Player ID
+            playerIDPos.X = (float)o.SelectToken("displayElements.playerID.x");
+            playerIDPos.Y = (float)o.SelectToken("displayElements.playerID.y");
+            playerIDScale = (float)o.SelectToken("displayElements.playerID.scale");
+            playerIDAllignment = (int)o.SelectToken("displayElements.playerID.textAllignment");
+            playerIDDEnabled = (bool)o.SelectToken("displayElements.playerID.enabled");
+
             // Postal
             postalPos.X = (float)o.SelectToken("displayElements.postal.x");
             postalPos.Y = (float)o.SelectToken("displayElements.postal.y");
@@ -155,6 +173,7 @@ namespace BadgerEssentials
 
             // Json Postals Array
             a = Newtonsoft.Json.JsonConvert.DeserializeObject<JArray>(jsonPostals);
+            customDisplays = Newtonsoft.Json.JsonConvert.DeserializeObject<JArray>(jsonCustomDisplays);
 
             // Put postal code numbers and coordinates into three diff lists.
             foreach (JObject item in a)
@@ -237,12 +256,18 @@ namespace BadgerEssentials
             int ped = GetPlayerPed(-1);
             if (toggleHud)
 			{
-                // Draw 2D Text
+                //
+                // Draw HUD Components
+                //
+
+                // Standard elements
                 if (streetLabelEnabled)
 				{
                     Draw2DText(streetLabelPos.X, streetLabelPos.Y, colour1 + streetLabelHeading + colour2 + " | " + colour1 + streetLabelStreetName, streetLabelScale, streetLabelAllignment);
                     Draw2DText(streetLabelPos.X, streetLabelPos.Y + 0.030f, colour2 + streetLabelZone, streetLabelScale / 1.1f, streetLabelAllignment);
                 }
+                if (playerIDDEnabled)
+                    Draw2DText(playerIDPos.X, playerIDPos.Y, colour1 + "ID: " + colour2 + GetPlayerServerId(NetworkGetEntityOwner(ped)), playerIDScale, playerIDAllignment);
                 if (postalEnabled)
                     Draw2DText(postalPos.X, postalPos.Y, colour1 + "Nearest Postal: " + colour2 + nearestPostalCode + " (" + (int)nearestPostalDistance + "m)", postalScale, postalAllignment);
                 if (peacetimeEnabled)
@@ -251,6 +276,23 @@ namespace BadgerEssentials
                     Draw2DText(priorityCooldownPos.X, priorityCooldownPos.Y, colour1 + "Priority Cooldown: " + colour2 + priorityCooldownStatus, priorityCooldownScale, priorityCooldownAllignment);
                 if (aopEnabled)
                     Draw2DText(aopPos.X, aopPos.Y, colour1 + "AOP: " + colour2 + currentAOP, aopScale, aopAllignment);
+
+                // Custom elements 
+                if (enableCustomDisplays)
+                {
+                    foreach (JObject item in customDisplays)
+                    {
+                        string text = (string)item.GetValue("text");
+                        float x = (float)item.GetValue("x");
+                        float y = (float)item.GetValue("y");
+                        float scale = (float)item.GetValue("scale");
+                        int allignment = (int)item.GetValue("textAllignment");
+                        bool enabled = (bool)item.GetValue("enabled");
+
+                        if (enabled)
+                            Draw2DText(x, y, text, scale, allignment);
+                    }
+                }
 
                 if (deadCheck)
                 {
@@ -419,7 +461,7 @@ namespace BadgerEssentials
         // Map Start
         public void OnClientMapStart()
 		{
-            Exports["spawnmanager"].spawnPlayer();;
+            Exports["spawnmanager"].spawnPlayer();
             Wait(2500);
             Exports["spawnmanager"].setAutoSpawn(false);
         }
