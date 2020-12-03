@@ -29,10 +29,14 @@ or like the name of the script name, essentials.
 
 `/announce <Announcement Message>` Displays a message to all players on the server. Requires permission node BadgerEssentials.Command.Announce  
 
-## Configuration
+## config.json
 ### "displayElements"
 In the displayElements section of the config file, you are able to change properties of text which is displayed on screen.  
 For example, the x and y position of the aop.  
+
+**enableCustomDisplayElements:** This allows you to use custom display elements, which must  
+be made inside of customDisplayElements.json, following the format.  
+
 **textAllignment:** 0 = Center | 1 = Left | 2 = Right.
 **colours:** This chooses the primary and secondary colour of the display elements using fiveM colour codes.
 
@@ -43,6 +47,9 @@ Here, you can edit properties of commands.
 ### "ragdoll"
 **Key:** This decides what key will cause the player to ragdoll, by default, "U"  
 https://docs.fivem.net/docs/game-references/controls/
+
+## customDisplayElements.json
+You can make custom display elements here!  (enabled in config.json first)  
 
 ## Permissions
 `BadgerEssentials.Command.Announce` Gives access to the /Announce command.  
