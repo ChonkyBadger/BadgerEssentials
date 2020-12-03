@@ -209,7 +209,7 @@ namespace BadgerEssentials
                 if (!IsEntityDead(ped))
                 {
                     Game.PlayerPed.Kill();
-                    Screen.ShowNotification(colour1 + "Successfuly Suicided");
+                    Screen.ShowNotification(colour1 + "[BadgerEssentials] \n" + colour2 + "Successfuly Suicided");
                 }
             }), false);
 
@@ -235,7 +235,7 @@ namespace BadgerEssentials
                 float postalYCoord = postalYValues.ElementAt(arrayIndex);
                 SetNewWaypoint(postalXCoord, postalYCoord);
 
-                Screen.ShowNotification(colour1 + "Waypoint set to postal~s~ " + args[0]);
+                Screen.ShowNotification(colour1 +  "[BadgerEssentials] \n" + colour2 + "Waypoint set to postal~s~ " + colour1 + args[0]);
             }), false);
 
             // Toggle-Hud
@@ -314,7 +314,7 @@ namespace BadgerEssentials
                 DisableControlAction(0, 140, true); // Melee key "r"
 
                 if (IsControlPressed(0, 106))
-                    Screen.ShowNotification("~r~Peacetime is enabled. ~n~~s~You can not shoot.");
+                    Screen.ShowNotification(colour1 + "[BadgerEssentials] \n" + "~r~Peacetime is enabled! " + colour2 + "You can not shoot.");
             }
 
             // Ragdoll Script
@@ -486,7 +486,7 @@ namespace BadgerEssentials
                         ClearPedBloodDamage(ped);
                     }
                     else
-                        Screen.ShowNotification(colour1 + "[BadgerEssentials] " + "~r~You cannot revive for " + colour1 + revTimer + " ~r~more seconds");
+                        Screen.ShowNotification(colour1 + "[BadgerEssentials] \n" + colour2 + "You cannot revive for " + colour1 + revTimer + colour2 + " more seconds");
                 }
             }
         }
