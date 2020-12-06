@@ -74,6 +74,10 @@ the source code instead of the compiled files. In your server.cfg, you will want
 ## Credit
 - [Badger](https://forum.cfx.re/u/OfficialBadger)
 
+## License
+Full license is viewable in the LICENSE file in this repository.  
+This license is subject to be changed at any given time.
+
 ## Links
 - [Postal Map used by this script](https://github.com/ocrp/postal_map/)
 - [My Discord Server](https://discord.gg/TFCQE8d)
