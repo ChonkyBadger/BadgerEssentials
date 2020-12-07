@@ -30,7 +30,7 @@ or like the name of the script name, essentials.
 `/announce <Announcement Message>` Displays a message to all players on the server. Requires permission node BadgerEssentials.Command.Announce  
 
 ## config.json
-### "displayElements"
+### "displays"
 In the displayElements section of the config file, you are able to change properties of text which is displayed on screen.  
 For example, the x and y position of the aop.  
 
@@ -39,6 +39,11 @@ be made inside of customDisplayElements.json, following the format.
 
 **textAllignment:** 0 = Center | 1 = Left | 2 = Right.
 **colours:** This chooses the primary and secondary colour of the display elements using fiveM colour codes.
+
+**"streetLabel":**  
+line1Text and line2Text allows you to change the layout/text of the street label.  
+**{colour1}** = colour1 **|** **{colour2}** = colour2 **|** **{zone}** is the zone, i.e. "Sandy Shores"  
+**{heading}** is the  heading  **|** **{street}** is the street and crossing street 
 
 ### "commands"
 Here, you can edit properties of commands.  
@@ -73,6 +78,10 @@ the source code instead of the compiled files. In your server.cfg, you will want
 
 ## Credit
 - [Badger](https://forum.cfx.re/u/OfficialBadger)
+
+## License
+Full license is viewable in the LICENSE file in this repository.  
+This license is subject to be changed at any given time.
 
 ## Links
 - [Postal Map used by this script](https://github.com/ocrp/postal_map/)
