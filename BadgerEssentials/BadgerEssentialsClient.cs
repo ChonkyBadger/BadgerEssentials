@@ -350,6 +350,7 @@ namespace BadgerEssentials
 		private async Task OnTick()
 		{
 			int ped = GetPlayerPed(-1);
+			Draw2DText(0.3f, 0.3f, "TEST", 1, 1);
 			if (toggleHud)
 			{
 				//
