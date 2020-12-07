@@ -256,10 +256,10 @@ namespace BadgerEssentials
 			RegisterCommand("die", new Action<int, List<object>, string>((source, args, raw) =>
 			{
 				int ped = GetPlayerPed(-1);
-				if (!IsEntityDead(ped))
-				{
-					Game.PlayerPed.Kill();
-					Screen.ShowNotification(colour1 + "[BadgerEssentials] \n" + colour2 + "Successfuly Suicided");
+			if (!IsEntityDead(ped))
+			{
+				Game.PlayerPed.Kill();
+				Screen.ShowNotification($"{colour1}[BadgerEssentials]\n{colour2}Successfuly Suicided");
 				}
 			}), false);
 
@@ -285,7 +285,7 @@ namespace BadgerEssentials
 				float postalYCoord = postal.yValues.ElementAt(arrayIndex);
 				SetNewWaypoint(postalXCoord, postalYCoord);
 
-				Screen.ShowNotification(colour1 + "[BadgerEssentials] \n" + colour2 + "Waypoint set to postal~s~ " + colour1 + args[0]);
+				Screen.ShowNotification($"{colour1}[BadgerEssentials]\n{colour2}Waypoint set to postal {colour1}{args[0]}");
 			}), false);
 
 			// Toggle-Hud
@@ -295,6 +295,52 @@ namespace BadgerEssentials
 					toggleHud = false;
 				else toggleHud = true;
 			}), false);
+
+			//
+			// Chat Suggestions
+			//
+
+			// toggle-hud command suggestions
+			TriggerEvent("chat:addSuggestion", "/toggle-hud", "Toggles the hud");
+
+			// die command suggestions
+			TriggerEvent("chat:addSuggestion", "/die", "Kills yourself");
+
+			// revive command suggestions
+			TriggerEvent("chat:addSuggestion", "/revive", "Revive yourself or other players", new[]
+			{
+				new { name = "PlayerID", help = "(Optional) ID of the player you want to revive" }
+			});
+
+			// pt command suggestions
+			TriggerEvent("chat:addSuggestion", "/pt", "Toggles peacetime");
+
+			// pc command suggestions
+			TriggerEvent("chat:addSuggestion", "/pc", "Sets priority cooldown for specified number of minutes", new[]
+			{
+				new { name = "Duration", help = "Duration of priority cooldown in minutes" }
+			});
+
+			// pc-inprogress command suggestions
+			TriggerEvent("chat:addSuggestion", "/pc-inprogress", "Sets priority cooldown status to \"Priority in progress\"");
+
+			// pc-onhold command suggestions
+			TriggerEvent("chat:addSuggestion", "/pc-onhold", "Sets priority cooldown status to \"Priority on hold\"");
+
+			// pc-reset command suggestions
+			TriggerEvent("chat:addSuggestion", "/pc-reset", "Resets priority cooldown status");
+
+			// aop command suggestions
+			TriggerEvent("chat:addSuggestion", "/setaop", "Sets the aop", new[]
+			{
+				new { name = "AOP", help = "What the new AOP should be" }
+			});
+
+			// announce command suggestions
+			TriggerEvent("chat:addSuggestion", "/announce", "Makes an announcement on screen, visible to all players", new[]
+			{
+				new { name = "message", help = "Announcement message" }
+			});
 		}
 
 		//

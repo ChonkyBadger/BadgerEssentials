@@ -34,7 +34,7 @@ namespace BadgerEssentialsServer
 			//
 			// Commands
 			//
-
+			
 			// Revive Command
 			RegisterCommand("revive", new Action<int, List<object>, string>((source, args, raw) =>
 			{
