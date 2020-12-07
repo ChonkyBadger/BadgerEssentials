@@ -40,6 +40,12 @@ be made inside of customDisplayElements.json, following the format.
 **textAllignment:** 0 = Center | 1 = Left | 2 = Right.
 **colours:** This chooses the primary and secondary colour of the display elements using fiveM colour codes.
 
+**"streetLabel":**  
+line1Text and line2Text allows you to change the layout/text of the street label.  
+{colour1} = colour1 | {colour2} = colour2  
+{heading} is the  heading  | {street} is the current street  
+{crossStreet} is the crossing street | {zone} is the zone, i.e. "Sandy Shores"
+
 ### "commands"
 Here, you can edit properties of commands.  
 **Cooldown values:** A number of seconds, must be an integer (whole number).
