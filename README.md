@@ -30,7 +30,7 @@ or like the name of the script name, essentials.
 `/announce <Announcement Message>` Displays a message to all players on the server. Requires permission node BadgerEssentials.Command.Announce  
 
 ## config.json
-### "displayElements"
+### "displays"
 In the displayElements section of the config file, you are able to change properties of text which is displayed on screen.  
 For example, the x and y position of the aop.  
 
