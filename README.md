@@ -44,7 +44,7 @@ be made inside of customDisplayElements.json, following the format.
 line1Text and line2Text allows you to change the layout/text of the street label.  
 **{colour1}** = colour1 **|** **{colour2}** = colour2  
 **{heading}** is the  heading  **|** **street}** is the current street  
-**{crossStreet}** is the crossing street **** **{zone}** is the zone, i.e. "Sandy Shores"
+**{crossStreet}** is the crossing street **|** **{zone}** is the zone, i.e. "Sandy Shores"
 
 ### "commands"
 Here, you can edit properties of commands.  
