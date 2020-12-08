@@ -13,11 +13,22 @@ namespace BadgerEssentials
 	{
 		string jsonConfig = LoadResourceFile(GetCurrentResourceName(), "config/config.json");
 		string jsonPostals = LoadResourceFile(GetCurrentResourceName(), "config/postals.json");
-		string jsonCustomDisplays = LoadResourceFile(GetCurrentResourceName(), "config/customDisplayElements.json");
+		string jsonDisplays = LoadResourceFile(GetCurrentResourceName(), "config/displays.json");
 
-		JArray a;
-		JArray customDisplays;
-		bool enableCustomDisplays;
+		JArray postals;
+		JArray displaysArray;
+
+		public class Display
+		{
+			public string text;
+			public float x;
+			public float y;
+			public float scale;
+			public int allignment;
+			public bool enabled;
+		}
+
+		List<Display> displays = new List<Display>();
 
 		// Ragdoll Script
 		bool isRagdolled = false;
@@ -55,37 +66,14 @@ namespace BadgerEssentials
 		// Street Label
 		public class PLD
 		{
-			public string line1;
-			public string line2;
-			public string line1Raw;
-			public string line2Raw;
-			public string streetSlashColour;
-			public string crossStreetColour;
-
-			public Vector2 pos;
-			public Vector2 pos2;
-			public float scale;
-			public float scale2;
-			public int allignment = 1;
-			public bool enabled;
-
 			public string heading;
 			public string street;
+			public string crossStreet;
 			public string zone;
 			public uint streetNameHash;
 			public uint crossRoadHash;
 		}
 		PLD pld = new PLD();
-
-		// Player ID
-		public class PlayerID
-		{
-			public Vector2 pos;
-			public float scale;
-			public int allignment;
-			public bool enabled;
-		}
-		PlayerID playerID = new PlayerID();
 
 		// Postal
 		public class Postal
@@ -108,11 +96,6 @@ namespace BadgerEssentials
 		// Peacetime
 		public class Peacetime
 		{
-			public Vector2 pos;
-			public float scale;
-			public int allignment;
-			public bool enabled;
-
 			public bool status;
 			public string text;
 		}
@@ -121,11 +104,6 @@ namespace BadgerEssentials
 		// Priority Cooldown
 		public class PriorityCooldown
 		{
-			public Vector2 pos;
-			public float scale;
-			public int allignment;
-			public bool enabled;
-
 			public string status;
 		}
 		PriorityCooldown pc = new PriorityCooldown();
@@ -133,11 +111,6 @@ namespace BadgerEssentials
 		// Aop
 		public class AOP
 		{
-			public Vector2 pos;
-			public float scale;
-			public int allignment;
-			public bool enabled;
-
 			public string currentAOP;
 		}
 		AOP aop = new AOP();
@@ -151,86 +124,46 @@ namespace BadgerEssentials
 								 //
 								 // Parse json config
 								 //
-			JObject o = JObject.Parse(jsonConfig);
+			JObject cfg = JObject.Parse(jsonConfig);
 
 			// Ragdoll Script
-			ragdollKey = (int)o.SelectToken("ragdoll.key");
-			ragdollEnabled = (bool)o.SelectToken("ragdoll.enabled");
+			ragdollKey = (int)cfg.SelectToken("ragdoll.key");
+			ragdollEnabled = (bool)cfg.SelectToken("ragdoll.enabled");
 
 			//
 			// Display Elements
 			// 
 
-			enableCustomDisplays = (bool)o.SelectToken("displays.enableCustomDisplayElements");
-
 			// Colours
-			colour1 = (string)o.SelectToken("displays.colours.colour1");
-			colour2 = (string)o.SelectToken("displays.colours.colour2");
-
-			// Street Label
-			pld.line1Raw = (string)o.SelectToken("displays.streetLabel.line1Text");
-			pld.line2Raw = (string)o.SelectToken("displays.streetLabel.line2Text");
-			string pld1 = (string)o.SelectToken("displays.streetLabel.crossStreetColour");
-			pld.crossStreetColour = pld1.Replace("{colour1}", colour1).Replace("{colour2}", colour2);
-			string pld2 = (string)o.SelectToken("displays.streetLabel.streetSlashColour");
-			pld.streetSlashColour = pld2.Replace("{colour1}", colour1).Replace("{colour2}", colour2);
-			pld.pos.X = (float)o.SelectToken("displays.streetLabel.x");
-			pld.pos.Y = (float)o.SelectToken("displays.streetLabel.y");
-			pld.scale = (float)o.SelectToken("displays.streetLabel.scale");
-			pld.pos2.X = (float)o.SelectToken("displays.streetLabel.x2");
-			pld.pos2.Y = (float)o.SelectToken("displays.streetLabel.y2");
-			pld.scale2 = (float)o.SelectToken("displays.streetLabel.scale2");
-			pld.enabled = (bool)o.SelectToken("displays.streetLabel.enabled");
-
-			// Pacetime
-			pt.pos.X = (float)o.SelectToken("displays.peacetime.x");
-			pt.pos.Y = (float)o.SelectToken("displays.peacetime.y");
-			pt.scale = (float)o.SelectToken("displays.peacetime.scale");
-			pt.allignment = (int)o.SelectToken("displays.peacetime.textAllignment");
-			pt.enabled = (bool)o.SelectToken("displays.peacetime.enabled");
-
-			// Priority Cooldown
-			pc.pos.X = (float)o.SelectToken("displays.priorityCooldown.x");
-			pc.pos.Y = (float)o.SelectToken("displays.priorityCooldown.y");
-			pc.scale = (float)o.SelectToken("displays.priorityCooldown.scale");
-			pc.allignment = (int)o.SelectToken("displays.priorityCooldown.textAllignment");
-			pc.enabled = (bool)o.SelectToken("displays.priorityCooldown.enabled");
-
-			// Aop
-			aop.pos.X = (float)o.SelectToken("displays.aop.x");
-			aop.pos.Y = (float)o.SelectToken("displays.aop.y");
-			aop.scale = (float)o.SelectToken("displays.aop.scale");
-			aop.allignment = (int)o.SelectToken("displays.aop.textAllignment");
-			aop.enabled = (bool)o.SelectToken("displays.aop.enabled");
-
-			// Player ID
-			playerID.pos.X = (float)o.SelectToken("displays.playerID.x");
-			playerID.pos.Y = (float)o.SelectToken("displays.playerID.y");
-			playerID.scale = (float)o.SelectToken("displays.playerID.scale");
-			playerID.allignment = (int)o.SelectToken("displays.playerID.textAllignment");
-			playerID.enabled = (bool)o.SelectToken("displays.playerID.enabled");
-
-			// Postal
-			postal.pos.X = (float)o.SelectToken("displays.postal.x");
-			postal.pos.Y = (float)o.SelectToken("displays.postal.y");
-			postal.scale = (float)o.SelectToken("displays.postal.scale");
-			postal.allignment = (int)o.SelectToken("displays.postal.textAllignment");
-			postal.enabled = (bool)o.SelectToken("displays.postal.enabled");
+			colour1 = (string)cfg.SelectToken("displayOptions.colour1");
+			colour2 = (string)cfg.SelectToken("displayOptions.colour2");		
 
 			// Timers
-			rev.revDelay = (int)o.SelectToken("commands.revive.cooldown");
-			ann.duration = (int)o.SelectToken("commands.announce.duration");
+			rev.revDelay = (int)cfg.SelectToken("commands.revive.cooldown");
+			ann.duration = (int)cfg.SelectToken("commands.announce.duration");
 
 			// Json Postals Array
-			a = Newtonsoft.Json.JsonConvert.DeserializeObject<JArray>(jsonPostals);
-			customDisplays = Newtonsoft.Json.JsonConvert.DeserializeObject<JArray>(jsonCustomDisplays);
+			postals = Newtonsoft.Json.JsonConvert.DeserializeObject<JArray>(jsonPostals);
+			displaysArray = Newtonsoft.Json.JsonConvert.DeserializeObject<JArray>(jsonDisplays);
 
-			// Put postal code numbers and coordinates into three diff lists.
-			foreach (JObject item in a)
+			// Lists
+			foreach (JObject item in postals)
 			{
 				postal.codeValues.Add((int)item.GetValue("code"));
 				postal.xValues.Add((int)item.GetValue("x"));
 				postal.yValues.Add((int)item.GetValue("y"));
+			}
+
+			foreach (JObject display in displaysArray)
+			{
+				string jText = (string)display.SelectToken("..text");
+				float jX = (float)display.SelectToken("..x");
+				float jY = (float)display.SelectToken("..y");
+				float jScale = (float)display.SelectToken("..scale");
+				int jAllignment = (int)display.SelectToken("..textAllignment");
+				bool jEnabled = (bool)display.SelectToken("..enabled");
+
+				displays.Add(new Display { text = jText, x = jX, y = jY, scale = jScale, allignment = jAllignment, enabled = jEnabled });
 			}
 
 			// Sync up AOP + PT + PC
@@ -350,45 +283,26 @@ namespace BadgerEssentials
 		private async Task OnTick()
 		{
 			int ped = GetPlayerPed(-1);
-			Draw2DText(0.3f, 0.3f, "TEST", 1, 1);
+			int id = GetPlayerServerId(NetworkGetEntityOwner(ped));
+
 			if (toggleHud)
 			{
-				//
-				// Draw HUD Components
-				//
-
-				// Standard elements
-				if (pld.enabled)
+				// Display Elements
+				foreach (Display disp in displays)
 				{
-					Draw2DText(pld.pos.X, pld.pos.Y, pld.line1, pld.scale, pld.allignment);
-					Draw2DText(pld.pos2.X, pld.pos2.Y, pld.line2, pld.scale2, pld.allignment);
-				}
-				if (playerID.enabled)
-					Draw2DText(playerID.pos.X, playerID.pos.Y, colour1 + "ID: " + colour2 + GetPlayerServerId(NetworkGetEntityOwner(ped)), playerID.scale, playerID.allignment);
-				if (postal.enabled)
-					Draw2DText(postal.pos.X, postal.pos.Y, colour1 + "Nearest Postal: " + colour2 + postal.nearestCode + " (" + (int)postal.nearestDistance + "m)", postal.scale, postal.allignment);
-				if (pt.enabled)
-					Draw2DText(pt.pos.X, pt.pos.Y, colour1 + "Peacetime:~s~ " + pt.text, pt.scale, pt.allignment);
-				if (pc.enabled)
-					Draw2DText(pc.pos.X, pc.pos.Y, colour1 + "Priority Cooldown: " + colour2 + pc.allignment, pc.scale, pc.allignment);
-				if (aop.enabled)
-					Draw2DText(aop.pos.X, aop.pos.Y, colour1 + "AOP: " + colour2 + aop.currentAOP, aop.scale, aop.allignment);
+					string crossStreetSlash;
+					if (!IsStringNullOrEmpty(pld.crossStreet))
+						crossStreetSlash = "/";
+					else crossStreetSlash = String.Empty;
+					string text = disp.text
+						.Replace("{colour1}", colour1).Replace("{colour2}", colour2).Replace("{aop}", aop.currentAOP)
+						.Replace("{pcStatus}", pc.status).Replace("{ptStatus}", pt.text).Replace("{nearestPostal}", postal.nearestCode.ToString())
+						.Replace("{nearestPostalDistance}", postal.nearestDistance.ToString()).Replace("{playerID}", id.ToString())
+						.Replace("{zone}", pld.zone).Replace("{heading}", pld.heading).Replace("{street}", pld.street)
+						.Replace("{crossStreetSlash}", crossStreetSlash).Replace("{crossStreet}", pld.crossStreet);
 
-				// Custom elements 
-				if (enableCustomDisplays)
-				{
-					foreach (JObject item in customDisplays)
-					{
-						string text = (string)item.GetValue("text");
-						float x = (float)item.GetValue("x");
-						float y = (float)item.GetValue("y");
-						float scale = (float)item.GetValue("scale");
-						int allignment = (int)item.GetValue("textAllignment");
-						bool enabled = (bool)item.GetValue("enabled");
-
-						if (enabled)
-							Draw2DText(x, y, text, scale, allignment);
-					}
+					if (disp.enabled)
+						Draw2DText(disp.x, disp.y, text, disp.scale, disp.allignment);
 				}
 
 				if (deadCheck)
@@ -487,7 +401,7 @@ namespace BadgerEssentials
 
 			// Postal
 			List<float> distanceList = new List<float>();
-			foreach (JObject item in a)
+			foreach (JObject item in postals)
 				distanceList.Add(GetDistanceBetweenCoords(pos.X, pos.Y, pos.Z, (float)item.GetValue("x"), (float)item.GetValue("y"), 0, false));
 			postal.nearestDistance = distanceList.Min();
 			postal.arrayIndex = distanceList.IndexOf(distanceList.Min());
@@ -495,7 +409,7 @@ namespace BadgerEssentials
 			postal.nearestCode = postal.codeValues[postal.arrayIndex];
 
 			// Street Label
-			if (pld.enabled)
+			if (true)
 			{
 				float rawHeading = GetEntityHeading(ped);
 
@@ -518,16 +432,9 @@ namespace BadgerEssentials
 
 				GetStreetNameAtCoord(pos.X, pos.Y, pos.Z, ref pld.streetNameHash, ref pld.crossRoadHash);
 				pld.street = GetStreetNameFromHashKey(pld.streetNameHash);
-				string crossStreet = GetStreetNameFromHashKey(pld.crossRoadHash);
-				if (!IsStringNullOrEmpty(crossStreet))
-					pld.street += $" {pld.streetSlashColour}/ {pld.crossStreetColour}{crossStreet}";
+				pld.crossStreet = GetStreetNameFromHashKey(pld.crossRoadHash);
 
 				pld.zone = GetLabelText(GetNameOfZone(pos.X, pos.Y, pos.Z));
-
-				pld.line1 = pld.line1Raw.Replace("{colour1}", colour1).Replace("{colour2}", colour2).Replace("{heading}", pld.heading)
-					.Replace("{street}", pld.street).Replace("{zone}", pld.zone);
-				pld.line2 = pld.line2Raw.Replace("{colour1}", colour1).Replace("{colour2}", colour2).Replace("{heading}", pld.heading)
-					.Replace("{street}", pld.street).Replace("{zone}", pld.zone);
 			}
 		}
 

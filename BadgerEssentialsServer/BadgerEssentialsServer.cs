@@ -11,7 +11,7 @@ namespace BadgerEssentialsServer
 	{
 		string jsonConfig = LoadResourceFile(GetCurrentResourceName(), "config/config.json");
 
-		string currentAOP = "Sandy Shores test";
+		string currentAOP;
 		bool peacetime = false;
 		string currentPriorityStatus = "none";
 		int priorityTime = 0;
@@ -23,7 +23,7 @@ namespace BadgerEssentialsServer
 
 			JObject o = JObject.Parse(jsonConfig);
 
-			currentAOP = (string)o.SelectToken("displayElements.aop.defaultAOP");
+			currentAOP = (string)o.SelectToken("displayOptions.defaultAOP");
 			//
 			// Event Listeners
 			//
@@ -166,8 +166,6 @@ namespace BadgerEssentialsServer
 		// Receive aop from BadgerAOPVote
 		private void SetAOPFromVote(string aop)
 		{
-			Debug.WriteLine("received from aop vote");
-
 			currentAOP = aop;
 			TriggerClientEvent("BadgerEssentials:SetAOP", aop);
 		}
