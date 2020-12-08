@@ -4,6 +4,9 @@ A C# FiveM script. It is inspired by Badssentials, a great lua script by Badger.
 This script basically add lots of useful stuff, such as /revive and /respawn,  
 or like the name of the script name, essentials.
 
+## Latest Version  
+V1.10
+
 ## Features
 **Ragdoll:** Players can toggle ragdoll by pressing "U" by default, editable in config.
 
