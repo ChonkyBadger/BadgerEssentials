@@ -4,6 +4,8 @@ A C# FiveM script. It is inspired by Badssentials, a great lua script by Badger.
 This script basically add lots of useful stuff, such as /revive and /respawn,  
 or like the name of the script name, essentials.
 
+Support is available in my discord, linked at the bottom of this page.
+
 ## Latest Version  
 V1.11
 
