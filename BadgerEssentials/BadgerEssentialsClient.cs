@@ -94,26 +94,14 @@ namespace BadgerEssentials
 		Postal postal = new Postal();
 
 		// Peacetime
-		public class Peacetime
-		{
-			public bool status;
-			public string text;
-		}
-		Peacetime pt = new Peacetime();
+		public bool ptStatus;
+		public string ptText;
 
 		// Priority Cooldown
-		public class PriorityCooldown
-		{
-			public string status;
-		}
-		PriorityCooldown pc = new PriorityCooldown();
+		public string pcStatus;
 
 		// Aop
-		public class AOP
-		{
-			public string currentAOP;
-		}
-		AOP aop = new AOP();
+		public string currentAOP;
 
 		public BadgerEssentials()
 		{
@@ -153,7 +141,6 @@ namespace BadgerEssentials
 				postal.xValues.Add((int)item.GetValue("x"));
 				postal.yValues.Add((int)item.GetValue("y"));
 			}
-
 			foreach (JObject display in displaysArray)
 			{
 				string jText = (string)display.SelectToken("..text");
@@ -295,9 +282,9 @@ namespace BadgerEssentials
 						crossStreetSlash = "/";
 					else crossStreetSlash = String.Empty;
 					string text = disp.text
-						.Replace("{colour1}", colour1).Replace("{colour2}", colour2).Replace("{aop}", aop.currentAOP)
-						.Replace("{pcStatus}", pc.status).Replace("{ptStatus}", pt.text).Replace("{nearestPostal}", postal.nearestCode.ToString())
-						.Replace("{nearestPostalDistance}", postal.nearestDistance.ToString()).Replace("{playerID}", id.ToString())
+						.Replace("{colour1}", colour1).Replace("{colour2}", colour2).Replace("{aop}", currentAOP)
+						.Replace("{pcStatus}", pcStatus).Replace("{ptStatus}", ptText).Replace("{nearestPostal}", postal.nearestCode.ToString())
+						.Replace("{nearestPostalDistance}", postal.nearestDistance.ToString("n1")).Replace("{playerID}", id.ToString())
 						.Replace("{zone}", pld.zone).Replace("{heading}", pld.heading).Replace("{street}", pld.street)
 						.Replace("{crossStreetSlash}", crossStreetSlash).Replace("{crossStreet}", pld.crossStreet);
 
@@ -318,7 +305,7 @@ namespace BadgerEssentials
 				Draw2DText(0.5f, 0.2f, "~r~Announcement! \n ~s~" + ann.msg, 1.0f, 0);
 
 			// Peacetime
-			if (pt.status)
+			if (ptStatus)
 			{
 				DisablePlayerFiring(ped, true);
 				SetPlayerCanDoDriveBy(ped, false);
@@ -528,13 +515,13 @@ namespace BadgerEssentials
 		public void SetPriorityCooldown(string priorityCooldown, int minutes)
 		{
 			if (priorityCooldown == "pc")
-				pc.status = minutes + " ~r~minutes";
+				pcStatus = minutes + " ~r~minutes";
 			else if (priorityCooldown == "inprogress")
-				pc.status = "~g~Priority in progress";
+				pcStatus = "~g~Priority in progress";
 			else if (priorityCooldown == "onhold")
-				pc.status = "~b~Priorities on hold";
+				pcStatus = "~b~Priorities on hold";
 			else if (priorityCooldown == "reset" || priorityCooldown == "none")
-				pc.status = "none";
+				pcStatus = "none";
 		}
 
 		// For pt command
@@ -542,26 +529,26 @@ namespace BadgerEssentials
 		{
 			if (peacetime)
 			{
-				pt.status = true;
-				pt.text = "~g~enabled";
+				ptStatus = true;
+				ptText = "~g~enabled";
 			}
 			else
 			{
-				pt.status = false;
-				pt.text = "~r~disabled";
+				ptStatus = false;
+				ptText = "~r~disabled";
 			}
 		}
 
 		// For SetAOP command
 		public void SetAOP(string newAOP)
 		{
-			aop.currentAOP = newAOP;
+			currentAOP = newAOP;
 		}
 
 		// Activates once when client joins to sync aop
 		public void GetAOPFromServer(string newAOP, bool peacetime, string priority, int priorityTime)
 		{
-			aop.currentAOP = newAOP;
+			currentAOP = newAOP;
 			SetPriorityCooldown(priority, priorityTime);
 			TogglePeacetime(peacetime);
 		}

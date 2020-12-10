@@ -16,6 +16,9 @@ namespace BadgerEssentialsServer
 		string currentPriorityStatus = "none";
 		int priorityTime = 0;
 
+		bool reviveCommandEnabled;
+		bool announceCommandEnabled;
+
 		bool priorityTimerActive = false;
 		public BadgerEssentialsServer()
 		{
@@ -24,58 +27,63 @@ namespace BadgerEssentialsServer
 			JObject o = JObject.Parse(jsonConfig);
 
 			currentAOP = (string)o.SelectToken("displayOptions.defaultAOP");
+			reviveCommandEnabled = (bool)o.SelectToken("commands.revive.enabled");
+			announceCommandEnabled = (bool)o.SelectToken("commands.announce.enabled");
 			//
 			// Event Listeners
 			//
-
 			EventHandlers["BadgerEssentials:GetAOPFromServer"] += new Action<int>(SendAOP);
 			EventHandlers["BadgerEssentials:GetAOPFromBadgerAOPVote"] += new Action<string>(SetAOPFromVote);
 
 			//
 			// Commands
 			//
-			
-			// Revive Command
-			RegisterCommand("revive", new Action<int, List<object>, string>((source, args, raw) =>
-			{
-				PlayerList pl = new PlayerList();
 
+			// Revive Command
+			if (reviveCommandEnabled)
+			{
+				RegisterCommand("revive", new Action<int, List<object>, string>((source, args, raw) =>
+				{
 				// Revive Self 
 				if (args.Count == 0 || int.Parse(args[0].ToString()) == source)
-				{
-					Player player = pl[source];
+					{
+						Player player = Players[source];
 
-					if (IsPlayerAceAllowed(source.ToString(), "BadgerEssentials.Bypass.ReviveTimer"))
-					{
-						TriggerClientEvent(player, "BadgerEssentials:RevivePlayer", true, true);
+						if (IsPlayerAceAllowed(source.ToString(), "BadgerEssentials.Bypass.ReviveTimer"))
+						{
+							TriggerClientEvent(player, "BadgerEssentials:RevivePlayer", true, true);
+						}
+						else
+						{
+							TriggerClientEvent(player, "BadgerEssentials:RevivePlayer", true, false);
+						}
 					}
-					else
-					{
-						TriggerClientEvent(player, "BadgerEssentials:RevivePlayer", true, false);
-					}
-				}
 				// Revive other person 
 				else if (int.Parse(args[0].ToString()) != source)
-				{
-					Player player = pl[int.Parse(args[0].ToString())];
-					string playerName = player.Name;
-
-					if (!string.IsNullOrEmpty(playerName))
 					{
-						TriggerClientEvent(player, "BadgerEssentials:RevivePlayer", false, false); ;
+						Player player = Players[int.Parse(args[0].ToString())];
+						string playerName = player.Name;
+
+						if (!string.IsNullOrEmpty(playerName))
+						{
+							TriggerClientEvent(player, "BadgerEssentials:RevivePlayer", false, false); ;
+						}
 					}
-				}
-			}), false);
+				}), false);
+			}
 
 			// Announcement Command
-			RegisterCommand("announce", new Action<int, List<object>, string>((source, args, raw) =>
+			if (announceCommandEnabled)
 			{
-				if (IsPlayerAceAllowed(source.ToString(), "BadgerEssentials.Command.Announce") && args.Count > 0)
+				RegisterCommand("announce", new Action<int, List<object>, string>((source, args, raw) =>
 				{
-					string announcementMsg = String.Join(" ", args);
-					TriggerClientEvent("BadgerEssentials:Announce", announcementMsg);
-				}
-			}), false);
+					if (IsPlayerAceAllowed(source.ToString(), "BadgerEssentials.Command.Announce") && args.Count > 0)
+					{
+						string announcementMsg = String.Join(" ", args);
+						TriggerClientEvent("BadgerEssentials:Announce", announcementMsg);
+					}
+				}), false);
+			}
 
 			//
 			// PRIORITY COOLDOWN COMMANDS
