@@ -4,6 +4,9 @@ A C# FiveM script. It is inspired by Badssentials, a great lua script by Badger.
 This script basically add lots of useful stuff, such as /revive and /respawn,  
 or like the name of the script name, essentials.
 
+## Latest Version  
+V1.10
+
 ## Features
 **Ragdoll:** Players can toggle ragdoll by pressing "U" by default, editable in config.
 
@@ -29,32 +32,23 @@ or like the name of the script name, essentials.
 
 `/announce <Announcement Message>` Displays a message to all players on the server. Requires permission node BadgerEssentials.Command.Announce  
 
-## config.json
-### "displays"
-In the displayElements section of the config file, you are able to change properties of text which is displayed on screen.  
-For example, the x and y position of the aop.  
+## configuration
+### "displays.json"
+This is where everythig displayed on the HUD is stored. You can add  
+your own custom displays here by following the format of other ones.
 
-**enableCustomDisplayElements:** This allows you to use custom display elements, which must  
-be made inside of customDisplayElements.json, following the format.  
+**textAllignment:** 0 = Center | 1 = Left | 2 = Right.  
+**colours:** This chooses the primary and secondary colour of the display elements using fiveM colour codes.  
+This is to make a quick and easy way of changing colours without manually doing it fot every display.
 
-**textAllignment:** 0 = Center | 1 = Left | 2 = Right.
-**colours:** This chooses the primary and secondary colour of the display elements using fiveM colour codes.
-
-**"streetLabel":**  
-line1Text and line2Text allows you to change the layout/text of the street label.  
-**{colour1}** = colour1 **|** **{colour2}** = colour2 **|** **{zone}** is the zone, i.e. "Sandy Shores"  
-**{heading}** is the  heading  **|** **{street}** is the street and crossing street 
-
-### "commands"
+### config.json
+#### "commands"  
 Here, you can edit properties of commands.  
 **Cooldown values:** A number of seconds, must be an integer (whole number).
 
-### "ragdoll"
+#### "ragdoll"  
 **Key:** This decides what key will cause the player to ragdoll, by default, "U"  
 https://docs.fivem.net/docs/game-references/controls/
-
-## customDisplayElements.json
-You can make custom display elements here!  (enabled in config.json first)  
 
 ## Permissions
 `BadgerEssentials.Command.Announce` Gives access to the /Announce command.  
