@@ -1,5 +1,5 @@
 # BadgerEssentials
-**NOTE: This script is no longer maintained, there is now a newer version available: [BadgerEssentials v2](https://github.com/ChonkyBadger/BadgerEssentialsv2)  
+**NOTE: This script is no longer maintained, there is now a newer version available: [BadgerEssentials v2](https://forum.cfx.re/t/release-badgeressentials-v2-essential-hud-script-for-rp-servers-ragdoll-rp-revive-announce-command-customisable/1986352)  
 (If it doesnt exist, its not quite done yet)**
 
 A C# FiveM script. It is inspired by Badssentials, a great lua script by Badger.
