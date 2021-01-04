@@ -1,8 +1,8 @@
 # BadgerEssentials
-A C# FiveM script. It is inspired by Badssentials, a great lua script by Badger.
+**NOTE: This script is no longer maintained, there is now a newer version available: [BadgerEssentials v2](https://github.com/ChonkyBadger/BadgerEssentialsv2)  
+(If it doesnt exist, its not quite done yet)**
 
-**NOTE:** This script is no longer maintained, there is now a newer version available: [BadgerEssentials v2](https://github.com/ChonkyBadger/BadgerEssentialsv2)  
-(If it doesnt exist, its not quite done yet)  
+A C# FiveM script. It is inspired by Badssentials, a great lua script by Badger.
 
 This script basically add lots of useful stuff, such as /revive and /respawn,  
 or like the name of the script name, essentials.
